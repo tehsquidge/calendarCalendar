@@ -1,0 +1,79 @@
+<html>
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script src="calendarCalendar.jquery.js"></script>
+		<style type="text/css">
+			#CalendarCalendar, #calendar-wrapper {	width: 200px; color: #fff; background:#392423; font-family: sans-serif; font-size: 13px; position: relative; }
+			.calendar { padding: 10px; }
+				.calendar-table:before, .calendar-table:after { content: ' '; clear: both; display: block; height: 0; }
+				.calendar-header { text-align: center; }
+					.calendar-cell { float: left; width: 10.285714286%; padding: 2%; text-align: center; }
+		</style>
+	</head>
+	<body>
+		<input id="trigger" type="button" value="calendar">
+		<div id="calendar-wrapper">
+			<div id="calendar-start-date" class="calendar">
+				<div class="calendar-header">
+					<div class="calendar-arrow left"></div>
+					<div class="calendar-title">
+						<div class="calendar-caption">Arrive On</div>
+						<div class="calendar-date">December 2013</div>
+					</div>
+					<div class="calendar-arrow right"></div>
+				</div>
+				<div class="calendar-main">
+					<div class="calender-days calendar-table">
+						<div class="calendar-cell">Su</div>
+						<div class="calendar-cell">Mo</div>
+						<div class="calendar-cell">Tu</div>
+						<div class="calendar-cell">We</div>
+						<div class="calendar-cell">Th</div>
+						<div class="calendar-cell">Fr</div>
+						<div class="calendar-cell">Sa</div>
+					</div>
+					<div class="calendar-dates calendar-table">
+						<div class="calendar-cell">&nbsp;</div>
+						<div class="calendar-cell">1</div>
+						<div class="calendar-cell">2</div>
+						<div class="calendar-cell">3</div>
+						<div class="calendar-cell">4</div>
+						<div class="calendar-cell">5</div>
+						<div class="calendar-cell">6</div>
+						<div class="calendar-cell">7</div>
+						<div class="calendar-cell">8</div>
+						<div class="calendar-cell">9</div>
+						<div class="calendar-cell">10</div>
+						<div class="calendar-cell">11</div>
+						<div class="calendar-cell">12</div>
+						<div class="calendar-cell">13</div>
+						<div class="calendar-cell">14</div>
+						<div class="calendar-cell">15</div>
+						<div class="calendar-cell">16</div>
+						<div class="calendar-cell">17</div>
+						<div class="calendar-cell">18</div>
+						<div class="calendar-cell">19</div>
+						<div class="calendar-cell">20</div>
+						<div class="calendar-cell">21</div>
+						<div class="calendar-cell">22</div>
+						<div class="calendar-cell">23</div>
+						<div class="calendar-cell">24</div>
+						<div class="calendar-cell">25</div>
+						<div class="calendar-cell">26</div>
+						<div class="calendar-cell">27</div>
+						<div class="calendar-cell">28</div>
+						<div class="calendar-cell">29</div>
+						<div class="calendar-cell">30</div>
+						<div class="calendar-cell">31</div>						
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+		$(document).ready( function(){
+			$('#trigger').calendarCalendar();
+		});
+		</script>
+	</body>
+</html>
