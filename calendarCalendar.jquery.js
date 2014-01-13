@@ -1,20 +1,15 @@
 
 ;(function ( $, window, document, undefined ) {
 
-    var d = new Date(), pluginName = "calendarCalendar",
+    var d1 = new Date(), d2 = new Date(), pluginName = "calendarCalendar",
         defaults = {
             containerName: "calendarCalendar",
-            container: null,
-            day: d.getDate(),
-            month: d.getMonth() +1,
-            year: d.getFullYear(),
-            type: "default", //also accept month
-            minYear: null,
-            minMonth: null,
-            minDay: 1, //null makes it roll back
-            maxYear: null,
-            maxMonth: null,
-            maxDay: 1 //null makes it roll back
+            days: ['Su','Mo','Tu','We','Th','Fr','Sa'],
+            months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+            firstCalendarTitle: 'Arrive On',
+            secondCalendarTitle: 'Depart On',
+            firstDate: d1,
+            secondDate: new Date(d2.setDate(d1.getDate()+1))
         };
 
     function Plugin( element, options ) {
@@ -42,36 +37,76 @@
                 $('body').append(_self.container);
                 _self.container = $('#'+_self.options.containerName);
             }
-            
+            console.log(_self.options.firstDate);
+            console.log(_self.options.secondDate);
             _self.container.hide();
-            $(_self.element).click( function(){ _self.showCalendar(_self); } );
+            $(_self.element).click( function(){ _self.drawCalendars(_self); } );
 
         },
 
-        showCalendar: function(_self) {
+        drawCalendars: function(_self) {
             _self.container.show();
-            _self.generateCalendar(_self);
+            var firstCal = _self.generateCalendar(_self, _self.options.firstDate, "calendar-start-date", _self.options.firstCalendarTitle);
+            var secondCal = _self.generateCalendar(_self, _self.options.secondDate, "calendar-end-date", _self.options.secondCalendarTitle);
+            _self.container.html(firstCal).append(secondCal);
         },
 
-        generateCalendar: function(_self) {
-            var startCalendarMarkup = $('<div>', { id:"calendar-start-date", class: "calendar"});
-                var startCalendarHeader = $('<div>', { class: "calendar-header" });
-                    var startCalendarHeaderLeftArrow = $('<div>', { class: "calendar-arrow left" });
-                    var startCalendarHeaderTitle = $('<div>', { class: "calendar-title" });
-                        var startCalendarHeaderTitleCaption = $('<div>', { class: "calendar-caption" }).html('Arrive On');
-                        var startCalendarHeaderTitleDate = $('<div>', { class: "calendar-date" }).html('December 2013');
-                    var startCalendarHeaderRightArrow = $('<div>', { class: "calendar-arrow right" });
-            
-            startCalendarHeader.append(startCalendarHeaderLeftArrow);
-            startCalendarHeaderTitle.append(startCalendarHeaderTitleCaption);
-            startCalendarHeaderTitle.append(startCalendarHeaderTitleDate);
+        generateCalendar: function(_self, date, id, title) {
 
-            startCalendarHeader.append(startCalendarHeaderTitle);
-            startCalendarHeader.append(startCalendarHeaderLeftArrow);
+            var calendarMarkup = $('<div>', { id:id, class: "calendar"});
+                var calendarHeader = $('<div>', { class: "calendar-header" });
+                    var calendarHeaderLeftArrow = $('<div>', { class: "calendar-arrow left" });
+                    var calendarHeaderTitle = $('<div>', { class: "calendar-title" });
+                        var calendarHeaderTitleCaption = $('<div>', { class: "calendar-caption" }).html(title);
+                        var calendarHeaderTitleDate = $('<div>', { class: "calendar-date" }).html(_self.options.months[date.getMonth()] + " " + date.getFullYear());
+                    var calendarHeaderRightArrow = $('<div>', { class: "calendar-arrow right" });
+            	var calendarMain = $('<div>', { class: "caldendar-main" });
+            		var calendarDays = $('<div>', { class: "calendar-days calendar-table"});
+            		var calendarDates = $('<div>', { class: "calendar-dates calendar-table"});
+            //create header
+            calendarHeader.append(calendarHeaderLeftArrow);
+            	calendarHeaderTitle.append(calendarHeaderTitleCaption);
+            	calendarHeaderTitle.append(calendarHeaderTitleDate);
+            calendarHeader.append(calendarHeaderTitle);
+            calendarHeader.append(calendarHeaderLeftArrow);
 
-            startCalendarMarkup.append(startCalendarHeader);
+            calendarMarkup.append(calendarHeader);
 
-            _self.container.html(startCalendarMarkup);
+            //generate day headings
+            for(var i = 0; i<7; i++){
+            	calendarDays.append($('<div>', { class: "calendar-cell" }).html(_self.options.days[i]));
+            }
+
+            var daysInMonth = new Date(date.getFullYear(), date.getMonth(), 0).getDate();
+            var dayOffset = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+
+            //generate padding days
+            for(var i = 0; i<dayOffset; i++){
+            	calendarDates.append($('<div>', { class: "calendar-cell disabled" }).html("&nbsp;"));	
+            }
+
+            //generate days
+            for(var i = 1; i<=daysInMonth; i++){
+            	var classes = "calendar-cell active";
+            	if( i == date.getDate())
+            		classes += " today";
+            	var day = $('<div>', { class: classes }).html(i);
+            	day.bind( "click", { _self: _self, date: date, day: i  }, _self.dayClickEvent );
+            	calendarDates.append(day);
+            }
+
+            calendarMain.append(calendarDays);
+            calendarMain.append(calendarDates);
+
+            calendarMarkup.append(calendarMain);
+
+            return calendarMarkup;
+        },
+
+        dayClickEvent: function(event){
+        	var _self = event.data._self;
+        	event.data.date.setDate(event.data.day);
+        	_self.drawCalendars(_self);
         },
 
         clearCalendar: function(_self){
