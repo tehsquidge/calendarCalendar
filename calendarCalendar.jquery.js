@@ -6,15 +6,15 @@
             containerName: "calendarCalendar",
             days: ['Su','Mo','Tu','We','Th','Fr','Sa'],
             months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
-            firstCalendarTitle: 'Arrive On',
-            secondCalendarTitle: 'Depart On',
-            firstDate: d1,
-            secondDate: new Date(d2.setDate(d1.getDate()+1))
+            startCalendarTitle: 'Arrive On',
+            endCalendarTitle: 'Depart On',
+            startDate: d1,
+            endDate: new Date(d2.setDate(d1.getDate()+1)),
+            onDateChange: function(startDate, endDate){ }
         };
 
     function Plugin( element, options ) {
         this.element = element;
-
 
         this.options = $.extend( {}, defaults, options) ;
 
@@ -37,8 +37,8 @@
                 $('body').append(_self.container);
                 _self.container = $('#'+_self.options.containerName);
             }
-            console.log(_self.options.firstDate);
-            console.log(_self.options.secondDate);
+            console.log(_self.options.startDate);
+            console.log(_self.options.endDate);
             _self.container.hide();
             $(_self.element).click( function(){ _self.drawCalendars(_self); } );
 
@@ -46,8 +46,8 @@
 
         drawCalendars: function(_self) {
             _self.container.show();
-            var firstCal = _self.generateCalendar(_self, _self.options.firstDate, "calendar-start-date", _self.options.firstCalendarTitle);
-            var secondCal = _self.generateCalendar(_self, _self.options.secondDate, "calendar-end-date", _self.options.secondCalendarTitle);
+            var firstCal = _self.generateCalendar(_self, _self.options.startDate, "calendar-start-date", _self.options.startCalendarTitle);
+            var secondCal = _self.generateCalendar(_self, _self.options.endDate, "calendar-end-date", _self.options.endCalendarTitle);
             _self.container.html(firstCal).append(secondCal);
         },
 
@@ -64,11 +64,14 @@
             		var calendarDays = $('<div>', { class: "calendar-days calendar-table"});
             		var calendarDates = $('<div>', { class: "calendar-dates calendar-table"});
             //create header
+            calendarHeaderLeftArrow.bind( "click", { _self: _self, date: date, month: date.getMonth() - 1  }, _self.monthClickEvent );
+            calendarHeaderRightArrow.bind( "click", { _self: _self, date: date, month: date.getMonth() + 1  }, _self.monthClickEvent );
+
             calendarHeader.append(calendarHeaderLeftArrow);
             	calendarHeaderTitle.append(calendarHeaderTitleCaption);
             	calendarHeaderTitle.append(calendarHeaderTitleDate);
             calendarHeader.append(calendarHeaderTitle);
-            calendarHeader.append(calendarHeaderLeftArrow);
+            calendarHeader.append(calendarHeaderRightArrow);
 
             calendarMarkup.append(calendarHeader);
 
@@ -106,20 +109,28 @@
         dayClickEvent: function(event){
         	var _self = event.data._self;
         	event.data.date.setDate(event.data.day);
+        	_self.dateUpdate(_self);
+        },
+
+        monthClickEvent: function(event){
+        	var _self = event.data._self;
+        	event.data.date.setMonth(event.data.month);
+        	_self.dateUpdate(_self);
+        },
+
+        dateUpdate: function(_self){
+        	//we should validate here...
+        	if(+_self.options.endDate <= +_self.options.startDate){
+        		_self.options.endDate = new Date(_self.options.startDate.valueOf());
+        		_self.options.endDate.setDate(_self.options.endDate.getDate()+1);
+        	}
+        	_self.options.onDateChange(_self.options.startDate, _self.options.endDate, _self.options.months);
         	_self.drawCalendars(_self);
         },
 
         clearCalendar: function(_self){
             _self.container.html("");
-        },
-
-        storeDate: function(_self){
-            _self.options.year = 0;
-            _self.options.month = 0;
-            _self.options.day = 0;
-        }
-
-        
+        }        
     };
 
     $.fn[pluginName] = function ( options ) {

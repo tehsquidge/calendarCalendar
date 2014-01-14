@@ -4,21 +4,32 @@
 		<script src="calendarCalendar.jquery.js"></script>
 		<style type="text/css">
 			#CalendarCalendar, #calendar-wrapper { font-family: sans-serif; font-size: 13px; position: relative; }
-			.calendar { padding: 10px; float: left; width: 200px; color: #fff; background:#392423; }
+			.calendar { padding: 10px; float: left; width: 200px; color: #fff; background:#392423; border: 4px solid #2B1816; }
+				#calendar-start-date { border-right: none; }
 				.calendar-table:before, .calendar-table:after { content: ' '; clear: both; display: block; height: 0; }
 				.calendar-header { text-align: center; }
+				.calendar-title {  display: inline-block; width: 80%; }
+				.calendar-arrow { width: 0; height: 0; display: inline-block; border-color: transparent #fff; border-style: solid; margin: 10px 2%; cursor: pointer; }
+				.calendar-arrow.left { border-width: 7px 7px 7px 0; float: left; }
+				.calendar-arrow.right { border-width: 7px 0 7px 7px; float: right; }
 				.calendar-cell { float: left; width: 10.285714286%; padding: 2%; text-align: center; line-height: 1;  }
 				.calendar-dates .calendar-cell.active { cursor: pointer; }
-				.calendar-dates .calendar-cell.active.today { background: rgba(0,0,0,0.7); }
-				.calendar-dates .calendar-cell.active:hover { background: rgba(0,0,0,0.5); }
+				.calendar-dates .calendar-cell.active.today { background: #6D142B; }
+				.calendar-dates .calendar-cell.active:hover { background: #6D142B; }
 		</style>
 	</head>
 	<body>
 		<input id="trigger" type="button" value="calendar">
-
+		<input id="startDate">
+		<input id="endDate">
 		<script type="text/javascript">
 		$(document).ready( function(){
-			$('#trigger').calendarCalendar();
+			$('#trigger').calendarCalendar({
+				onDateChange: function(startDate, endDate, months){
+					$('#startDate').val(startDate.getDate() +" "+months[startDate.getMonth()]+" "+startDate.getFullYear());
+					$('#endDate').val(endDate.getDate() +" "+months[endDate.getMonth()]+" "+endDate.getFullYear());
+				}
+			});
 		});
 		</script>
 	</body>
