@@ -37,8 +37,6 @@
                 $('body').append(_self.container);
                 _self.container = $('#'+_self.options.containerName);
             }
-            console.log(_self.options.startDate);
-            console.log(_self.options.endDate);
             _self.container.hide();
             $(_self.element).click( function(){ _self.drawCalendars(_self); } );
 
@@ -80,7 +78,7 @@
             	calendarDays.append($('<div>', { class: "calendar-cell" }).html(_self.options.days[i]));
             }
 
-            var daysInMonth = new Date(date.getFullYear(), date.getMonth(), 0).getDate();
+            var daysInMonth = new Date(date.getFullYear(), date.getMonth()+1, 0).getDate();
             var dayOffset = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
 
             //generate padding days
@@ -92,7 +90,7 @@
             for(var i = 1; i<=daysInMonth; i++){
             	var classes = "calendar-cell active";
             	if( i == date.getDate())
-            		classes += " today";
+            		classes += " selected";
             	var day = $('<div>', { class: classes }).html(i);
             	day.bind( "click", { _self: _self, date: date, day: i  }, _self.dayClickEvent );
             	calendarDates.append(day);
