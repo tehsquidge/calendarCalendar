@@ -8,6 +8,8 @@
             months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
             startCalendarTitle: 'Arrive On',
             endCalendarTitle: 'Depart On',
+			startDateId: "calendar-start-date",
+			endDateId: "calendar-end-date",
             startDate: d1,
             endDate: new Date(d2.setDate(d1.getDate()+1)),
             onDateChange: function(startDate, endDate){ }
@@ -40,12 +42,15 @@
             _self.container.hide();
             $(_self.element).click( function(){ _self.drawCalendars(_self); } );
 
+            if(_self.options.startDateId == _self.options.endDateId)
+            	_self.options.endDateId += "2";
+
         },
 
         drawCalendars: function(_self) {
             _self.container.show();
-            var firstCal = _self.generateCalendar(_self, _self.options.startDate, "calendar-start-date", _self.options.startCalendarTitle);
-            var secondCal = _self.generateCalendar(_self, _self.options.endDate, "calendar-end-date", _self.options.endCalendarTitle);
+            var firstCal = _self.generateCalendar(_self, _self.options.startDate, _self.options.startDateId, _self.options.startCalendarTitle);
+            var secondCal = _self.generateCalendar(_self, _self.options.endDate, _self.options.endDateId, _self.options.endCalendarTitle);
             _self.container.html(firstCal).append(secondCal);
         },
 
@@ -83,17 +88,29 @@
 
             //generate padding days
             for(var i = 0; i<dayOffset; i++){
-            	calendarDates.append($('<div>', { class: "calendar-cell disabled" }).html("&nbsp;"));	
+            	calendarDates.append($('<div>', { class: "calendar-cell disabled padding" }).html("&nbsp;"));
             }
 
             //generate days
             for(var i = 1; i<=daysInMonth; i++){
-            	var classes = "calendar-cell active";
+            	var thisDate = new Date(date.valueOf());
+            	thisDate.setDate(i);
+            	
+            	var classes = "calendar-cell";
+            	if(id == _self.options.endDateId && thisDate <= _self.options.startDate)
+            		classes += " disabled";
+            	else
+            		classes += " active";
             	if( i == date.getDate())
             		classes += " selected";
             	var day = $('<div>', { class: classes }).html(i);
-            	day.bind( "click", { _self: _self, date: date, day: i  }, _self.dayClickEvent );
+            	if(id != _self.options.endDateId || thisDate >= _self.options.startDate )
+	            	day.bind( "click", { _self: _self, date: date, day: i  }, _self.dayClickEvent );
             	calendarDates.append(day);
+            }
+            //arse end paddings
+            for(var i = 0; i < 42 - (dayOffset+daysInMonth); i++){
+            	calendarDates.append($('<div>', { class: "calendar-cell disabled padding" }).html("&nbsp;"));
             }
 
             calendarMain.append(calendarDays);
