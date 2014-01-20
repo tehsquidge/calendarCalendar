@@ -13,6 +13,7 @@
             startDate: d1,
             endDate: new Date(d2.setDate(d1.getDate()+1)),
             onDateChange: function(startDate, endDate){ },
+            calculateOffset: function(element, _self){ return _self.calculateOffset(element); },
             showPaddingDates: false
         };
 
@@ -50,25 +51,41 @@
 
         },
 
+        closeCalendar: function(event){
+        	var _self = event.data._self;
+        	_self.container.hide();
+            _self.container.html("");
+        },
+
         drawCalendars: function(_self) {
+        	//this may not be overly efficient but it seems to be a negligable performance hit
             _self.container.show();
+            var exitDiv = $('<div>', { "class": "background" });
+            exitDiv.bind("click",{ _self: _self }, _self.closeCalendar);
             var firstCal = _self.generateCalendar(_self, _self.options.startDate, _self.options.startDateId, _self.options.startCalendarTitle);
             var secondCal = _self.generateCalendar(_self, _self.options.endDate, _self.options.endDateId, _self.options.endCalendarTitle);
-            _self.container.html(firstCal).append(secondCal); //this may not be overly efficient but it seems to be a negligable difference
+            var calendars = $('<div>', { "class": "calendars" } ).html(firstCal).append(secondCal);
+            calendars.offset(_self.options.calculateOffset($(_self.element),_self));
+            _self.container.html(exitDiv).append(calendars);
+        },  
+
+        calculateOffset: function(element) {
+            var offset = element.offset();
+            return {top: offset.top + element.outerHeight(), left: offset.left + element.outerWidth()};
         },
 
         generateCalendar: function(_self, date, id, title) {
 
-            var calendarMarkup = $('<div>', { id:id, class: "calendar"});
-                var calendarHeader = $('<div>', { class: "calendar-header" });
-                    var calendarHeaderLeftArrow = $('<div>', { class: "calendar-arrow left" });
-                    var calendarHeaderTitle = $('<div>', { class: "calendar-title" });
-                        var calendarHeaderTitleCaption = $('<div>', { class: "calendar-caption" }).html(title);
-                        var calendarHeaderTitleDate = $('<div>', { class: "calendar-date" }).html(_self.options.months[date.getMonth()] + " " + date.getFullYear());
-                    var calendarHeaderRightArrow = $('<div>', { class: "calendar-arrow right" });
-            	var calendarMain = $('<div>', { class: "caldendar-main" });
-            		var calendarDays = $('<div>', { class: "calendar-days calendar-table"});
-            		var calendarDates = $('<div>', { class: "calendar-dates calendar-table"});
+            var calendarMarkup = $('<div>', { id:id, "class": "calendar"});
+                var calendarHeader = $('<div>', { "class": "calendar-header" });
+                    var calendarHeaderLeftArrow = $('<div>', { "class": "calendar-arrow left" });
+                    var calendarHeaderTitle = $('<div>', { "class": "calendar-title" });
+                        var calendarHeaderTitleCaption = $('<div>', { "class": "calendar-caption" }).html(title);
+                        var calendarHeaderTitleDate = $('<div>', { "class": "calendar-date" }).html(_self.options.months[date.getMonth()] + " " + date.getFullYear());
+                    var calendarHeaderRightArrow = $('<div>', { "class": "calendar-arrow right" });
+            	var calendarMain = $('<div>', { "class": "caldendar-main" });
+            		var calendarDays = $('<div>', { "class": "calendar-days calendar-table"});
+            		var calendarDates = $('<div>', { "class": "calendar-dates calendar-table"});
             //create header
             calendarHeaderLeftArrow.bind( "click", { _self: _self, date: date, month: date.getMonth() - 1  }, _self.monthClickEvent );
             calendarHeaderRightArrow.bind( "click", { _self: _self, date: date, month: date.getMonth() + 1  }, _self.monthClickEvent );
@@ -83,7 +100,7 @@
 
             //generate day headings
             for(var i = 0; i<7; i++){
-            	calendarDays.append($('<div>', { class: "calendar-cell" }).html(_self.options.days[i]));
+            	calendarDays.append($('<div>', { "class": "calendar-cell" }).html(_self.options.days[i]));
             }
 
             var daysInMonth = new Date(date.getFullYear(), date.getMonth()+1, 0).getDate();
@@ -99,7 +116,7 @@
             	}else{
             		content = "&nbsp;"
             	}
-            	calendarDates.append($('<div>', { class: "calendar-cell disabled padding" }).html(content));
+            	calendarDates.append($('<div>', { "class": "calendar-cell disabled padding" }).html(content));
             }
 
             //generate days
@@ -114,7 +131,7 @@
             		classes += " active";
             	if( i == date.getDate())
             		classes += " selected";
-            	var day = $('<div>', { class: classes }).html(i);
+            	var day = $('<div>', { "class": classes }).html(i);
             	if(id != _self.options.endDateId || thisDate >= _self.options.startDate )
 	            	day.bind( "click", { _self: _self, date: date, day: i  }, _self.dayClickEvent );
             	calendarDates.append(day);
@@ -129,7 +146,7 @@
             	}else{
             		content = "&nbsp;"
             	}
-            	calendarDates.append($('<div>', { class: "calendar-cell disabled padding" }).html(content));
+            	calendarDates.append($('<div>', { "class": "calendar-cell disabled padding" }).html(content));
             }
 
             calendarMain.append(calendarDays);
@@ -161,11 +178,7 @@
         		_self.options.endDate.setDate(_self.options.endDate.getDate()+1);
         	}
         	_self.options.onDateChange(_self.options.startDate, _self.options.endDate, _self.options.months);
-        },
-
-        clearCalendar: function(_self){
-            _self.container.html("");
-        }        
+        }      
     };
 
     $.fn[pluginName] = function ( options ) {
