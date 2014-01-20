@@ -3,6 +3,7 @@ calendarCalendar
 
 A date range picker. In Development. Dual calendars that let you select a start and end date.
 
+In memory of Brian Beadie - The corporate world is too much for some.
 
 Usage
 ================
