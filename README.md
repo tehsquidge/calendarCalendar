@@ -7,11 +7,8 @@ A date range picker. In Development. Dual calendars that let you select a start 
 Usage
 ================
 
-```
-$('#trigger').calendarCalendar();
-```
 
-using the dates:
+You will need to define a callback to get the dates out:
 
 ```
 $('#trigger').calendarCalendar({
