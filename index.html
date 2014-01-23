@@ -27,9 +27,11 @@
 		<script type="text/javascript">
 		$(document).ready( function(){
 			$('#trigger').calendarCalendar({
-				onDateChange: function(startDate, endDate, months){
-					$('#startDate').val(startDate.getDate() +" "+months[startDate.getMonth()]+" "+startDate.getFullYear());
-					$('#endDate').val(endDate.getDate() +" "+months[endDate.getMonth()]+" "+endDate.getFullYear());
+				minDate: new Date(),
+				maxDate: new Date(2014,5,7),
+				onDateChange: function(startDate, endDate,  shortDays, longDays, shortMonths, longMonths){
+					$('#startDate').val(longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
+					$('#endDate').val(longDays[endDate.getDay()] +" "+ endDate.getDate() +" "+longMonths[endDate.getMonth()]+" "+endDate.getFullYear());
 				}
 			});
 		});

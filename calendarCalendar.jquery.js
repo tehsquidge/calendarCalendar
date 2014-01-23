@@ -4,16 +4,21 @@
     var d1 = new Date(), d2 = new Date(), pluginName = "calendarCalendar",
         defaults = {
             containerName: "calendarCalendar",
-            days: ['Su','Mo','Tu','We','Th','Fr','Sa'],
-            months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+            titleDays: ['Su','Mo','Tu','We','Th','Fr','Sa'],
+            shortDays: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+            longDays: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+            shortMonths: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+            longMonths: ['January','February','March','April','May','June','July','August','September','October','November','December'],
             startCalendarTitle: 'Arrive On',
             endCalendarTitle: 'Depart On',
 			startDateId: "calendar-start-date",
 			endDateId: "calendar-end-date",
             startDate: d1,
             endDate: new Date(d2.setDate(d1.getDate()+1)),
-            onDateChange: function(startDate, endDate){ },
-            calculateOffset: function(element, _self){ return _self.calculateOffset(element); },
+            minDate: null,
+            maxDate: null,
+            onDateChange: function(startDate, endDate, shortDays, longDays, shortMonths, longMonths){ },
+            calculatePosition: function(element, _self){ return _self.calculatePosition(element); },
             showPaddingDates: false
         };
 
@@ -46,7 +51,10 @@
 
             if(_self.options.startDateId == _self.options.endDateId)
             	_self.options.endDateId += "2";
-
+            if(_self.options.maxDate < _self.options.minDate ){
+            	_self.options.maxDate = null;
+            	_self.options.maxDate = null;
+            }
             _self.dateUpdate(_self);
 
         },
@@ -65,11 +73,11 @@
             var firstCal = _self.generateCalendar(_self, _self.options.startDate, _self.options.startDateId, _self.options.startCalendarTitle);
             var secondCal = _self.generateCalendar(_self, _self.options.endDate, _self.options.endDateId, _self.options.endCalendarTitle);
             var calendars = $('<div>', { "class": "calendars" } ).html(firstCal).append(secondCal);
-            calendars.offset(_self.options.calculateOffset($(_self.element),_self));
+            calendars.offset(_self.options.calculatePosition($(_self.element),_self));
             _self.container.html(exitDiv).append(calendars);
         },  
 
-        calculateOffset: function(element) {
+        calculatePosition: function(element) {
             var offset = element.offset();
             return {top: offset.top + element.outerHeight(), left: offset.left + element.outerWidth()};
         },
@@ -81,7 +89,7 @@
                     var calendarHeaderLeftArrow = $('<div>', { "class": "calendar-arrow left" });
                     var calendarHeaderTitle = $('<div>', { "class": "calendar-title" });
                         var calendarHeaderTitleCaption = $('<div>', { "class": "calendar-caption" }).html(title);
-                        var calendarHeaderTitleDate = $('<div>', { "class": "calendar-date" }).html(_self.options.months[date.getMonth()] + " " + date.getFullYear());
+                        var calendarHeaderTitleDate = $('<div>', { "class": "calendar-date" }).html(_self.options.longMonths[date.getMonth()] + " " + date.getFullYear());
                     var calendarHeaderRightArrow = $('<div>', { "class": "calendar-arrow right" });
             	var calendarMain = $('<div>', { "class": "caldendar-main" });
             		var calendarDays = $('<div>', { "class": "calendar-days calendar-table"});
@@ -100,7 +108,7 @@
 
             //generate day headings
             for(var i = 0; i<7; i++){
-            	calendarDays.append($('<div>', { "class": "calendar-cell" }).html(_self.options.days[i]));
+            	calendarDays.append($('<div>', { "class": "calendar-cell" }).html(_self.options.titleDays[i]));
             }
 
             var daysInMonth = new Date(date.getFullYear(), date.getMonth()+1, 0).getDate();
@@ -125,14 +133,14 @@
             	thisDate.setDate(i);
             	
             	var classes = "calendar-cell";
-            	if(id == _self.options.endDateId && thisDate <= _self.options.startDate)
+            	if( (id == _self.options.endDateId && thisDate <= _self.options.startDate) || thisDate < _self.options.minDate || thisDate > _self.options.maxDate  )
             		classes += " disabled";
             	else
             		classes += " active";
             	if( i == date.getDate())
             		classes += " selected";
             	var day = $('<div>', { "class": classes }).html(i);
-            	if(id != _self.options.endDateId || thisDate >= _self.options.startDate )
+            	if( (classes.indexOf('disabled') == -1) )
 	            	day.bind( "click", { _self: _self, date: date, day: i  }, _self.dayClickEvent );
             	calendarDates.append(day);
             }
@@ -172,12 +180,18 @@
         },
 
         dateUpdate: function(_self){
-        	//we should validate here...
+        	if(_self.options.minDate instanceof Date && +_self.options.minDate > +_self.options.startDate){
+        		_self.options.startDate = new Date(_self.options.minDate.valueOf());
+        	}
+        	if(_self.options.maxDate instanceof Date && +_self.options.maxDate < +_self.options.endDate){
+        		_self.options.endDate = new Date(_self.options.maxDate.valueOf());
+        	}
         	if(+_self.options.endDate <= +_self.options.startDate){
         		_self.options.endDate = new Date(_self.options.startDate.valueOf());
         		_self.options.endDate.setDate(_self.options.endDate.getDate()+1);
         	}
-        	_self.options.onDateChange(_self.options.startDate, _self.options.endDate, _self.options.months);
+
+        	_self.options.onDateChange(_self.options.startDate, _self.options.endDate, _self.options.shortDays, _self.options.longDays, _self.options.shortMonths, _self.options.longMonths );
         }      
     };
 
