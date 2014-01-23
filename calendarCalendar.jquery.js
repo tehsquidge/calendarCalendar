@@ -133,7 +133,9 @@
             	thisDate.setDate(i);
             	
             	var classes = "calendar-cell";
-            	if( (id == _self.options.endDateId && thisDate <= _self.options.startDate) || thisDate < _self.options.minDate || thisDate > _self.options.maxDate  )
+            	if( (id == _self.options.endDateId && thisDate <= _self.options.startDate) ||
+                    (thisDate < _self.options.minDate && _self.options.minDate instanceof Date  ) ||
+                    thisDate > _self.options.maxDate && _self.options.maxDate instanceof Date  )
             		classes += " disabled";
             	else
             		classes += " active";
