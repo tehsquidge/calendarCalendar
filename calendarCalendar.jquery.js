@@ -57,12 +57,20 @@
             }
             _self.dateUpdate(_self);
 
+            $(window).bind("resize", { "_self": _self }, _self.resize);
+
         },
 
         closeCalendar: function(event){
         	var _self = event.data._self;
         	_self.container.hide();
             _self.container.html("");
+        },
+
+
+        resize: function(event){
+            var _self = event.data._self;
+            _self.drawCalendars(_self);
         },
 
         drawCalendars: function(_self) {
