@@ -39,6 +39,8 @@
 
             var _self = this;
 
+            _self.open = false;
+            
             _self.container = $('#'+_self.options.containerName);
 
             if(_self.container.length == 0){
@@ -63,6 +65,7 @@
 
         closeCalendar: function(event){
         	var _self = event.data._self;
+            _self.open = false;
         	_self.container.hide();
             _self.container.html("");
         },
@@ -70,11 +73,14 @@
 
         resize: function(event){
             var _self = event.data._self;
-            _self.drawCalendars(_self);
+            if(_self.open){
+                _self.drawCalendars(_self);
+            }
         },
 
         drawCalendars: function(_self) {
         	//this may not be overly efficient but it seems to be a negligable performance hit
+            _self.open = true;
             _self.container.show();
             var exitDiv = $('<div>', { "class": "background" });
             exitDiv.bind("click",{ _self: _self }, _self.closeCalendar);
