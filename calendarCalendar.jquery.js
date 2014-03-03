@@ -18,8 +18,9 @@
             minDate: null,
             maxDate: null,
             onDateChange: function(startDate, endDate, shortDays, longDays, shortMonths, longMonths){ },
-            calculatePosition: function(element, _self){ return _self.calculatePosition(element); },
-            showPaddingDates: false
+            calculatePosition: function(element){ return this.calculatePosition(element); },
+            showPaddingDates: false,
+            calendarMode: "range" //also accepts "single"
         };
 
     function Plugin( element, options ) {
@@ -33,62 +34,66 @@
         this.init();
     }
 
+
     Plugin.prototype = {
 
         init: function() {
 
-            var _self = this;
-
-            _self.open = false;
+            this.open = false;
             
-            _self.container = $('#'+_self.options.containerName);
+            this.container = $('#'+this.options.containerName);
 
-            if(_self.container.length == 0){
-                _self.container = $('<div>', { id: _self.options.containerName });
-                $('body').append(_self.container);
-                _self.container = $('#'+_self.options.containerName);
+            if(this.container.length == 0){
+                this.container = $('<div>', { id: this.options.containerName });
+                $('body').append(this.container);
+                this.container = $('#'+this.options.containerName);
             }
-            _self.container.hide();
-            $(_self.element).click( function(){ _self.drawCalendars(_self); } );
+            this.container.hide();
+            $(this.element).bind("click", $.proxy(this.drawCalendars,this));
 
-            if(_self.options.startDateId == _self.options.endDateId)
-            	_self.options.endDateId += "2";
-            if(_self.options.maxDate < _self.options.minDate ){
-            	_self.options.maxDate = null;
-            	_self.options.maxDate = null;
+            this.options.calendarMode = (this.options.calendarMode == "single" || this.options.calendarMode == "range") ? this.options.calendarMode : "range";
+            
+            if(this.options.startDateId == this.options.endDateId)
+            	this.options.endDateId += "2";
+            if(this.options.maxDate < this.options.minDate ){
+            	this.options.maxDate = null;
+            	this.options.maxDate = null;
             }
-            _self.dateUpdate(_self);
+            this.dateUpdate(this);
 
-            $(window).bind("resize", { "_self": _self }, _self.resize);
+            if(this.options.startDate != null) { this.options.startDate.setHours(0,0,0,0); }
+            if(this.options.endDate != null) { this.options.endDate.setHours(0,0,0,0); }
+            if(this.options.minDate != null) { this.options.minDate.setHours(0,0,0,0); }
+            if(this.options.maxDate != null) { this.options.maxDate.setHours(0,0,0,0); }
+
+            $(window).bind("resize", $.proxy(this.resize,this));
 
         },
 
-        closeCalendar: function(event){
-        	var _self = event.data._self;
-            _self.open = false;
-        	_self.container.hide();
-            _self.container.html("");
+        closeCalendar: function(){
+            this.open = false;
+        	this.container.hide();
+            this.container.html("");
         },
 
 
-        resize: function(event){
-            var _self = event.data._self;
-            if(_self.open){
-                _self.drawCalendars(_self);
+        resize: function(){
+            if(this.open){
+                this.drawCalendars();
             }
         },
 
-        drawCalendars: function(_self) {
+        drawCalendars: function() {
         	//this may not be overly efficient but it seems to be a negligable performance hit
-            _self.open = true;
-            _self.container.show();
+            this.open = true;
+            this.container.show();
             var exitDiv = $('<div>', { "class": "background" });
-            exitDiv.bind("click",{ _self: _self }, _self.closeCalendar);
-            var firstCal = _self.generateCalendar(_self, _self.options.startDate, _self.options.startDateId, _self.options.startCalendarTitle);
-            var secondCal = _self.generateCalendar(_self, _self.options.endDate, _self.options.endDateId, _self.options.endCalendarTitle);
-            var calendars = $('<div>', { "class": "calendars" } ).html(firstCal).append(secondCal);
-            calendars.offset(_self.options.calculatePosition($(_self.element),_self));
-            _self.container.html(exitDiv).append(calendars);
+            exitDiv.bind("click",$.proxy(this.closeCalendar,this));
+            var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.startCalendarTitle);
+            var secondCal = (this.options.calendarMode == "range") ? this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.endCalendarTitle) : "";
+            var calendars = $('<div>', { "class": "calendars "+this.options.calendarMode } ).html(firstCal).append(secondCal);
+            calendars.offset($.proxy(this.options.calculatePosition, this, $(this.element)));
+            this.container.html(exitDiv).append(calendars);
         },  
 
         calculatePosition: function(element) {
@@ -96,21 +101,27 @@
             return {top: offset.top + element.outerHeight(), left: offset.left + element.outerWidth()};
         },
 
-        generateCalendar: function(_self, date, id, title) {
+        generateCalendar: function(date, id, title) {
 
-            var calendarMarkup = $('<div>', { id:id, "class": "calendar"});
+            var calendarClasses = "calendar";
+            if(this.options.maxDate instanceof Date && +date.getMonth() == +this.options.maxDate.getMonth() && +date.getFullYear() == +this.options.maxDate.getFullYear())
+                calendarClasses += " max-month";
+            if(this.options.minDate instanceof Date && +date.getMonth() == +this.options.minDate.getMonth() && +date.getFullYear() == +this.options.minDate.getFullYear())
+                calendarClasses += " min-month";
+
+            var calendarMarkup = $('<div>', { id:id, "class": calendarClasses});
                 var calendarHeader = $('<div>', { "class": "calendar-header" });
                     var calendarHeaderLeftArrow = $('<div>', { "class": "calendar-arrow left" });
                     var calendarHeaderTitle = $('<div>', { "class": "calendar-title" });
                         var calendarHeaderTitleCaption = $('<div>', { "class": "calendar-caption" }).html(title);
-                        var calendarHeaderTitleDate = $('<div>', { "class": "calendar-date" }).html(_self.options.longMonths[date.getMonth()] + " " + date.getFullYear());
+                        var calendarHeaderTitleDate = $('<div>', { "class": "calendar-date" }).html(this.options.longMonths[date.getMonth()] + " " + date.getFullYear());
                     var calendarHeaderRightArrow = $('<div>', { "class": "calendar-arrow right" });
             	var calendarMain = $('<div>', { "class": "caldendar-main" });
             		var calendarDays = $('<div>', { "class": "calendar-days calendar-table"});
             		var calendarDates = $('<div>', { "class": "calendar-dates calendar-table"});
             //create header
-            calendarHeaderLeftArrow.bind( "click", { _self: _self, date: date, month: date.getMonth() - 1  }, _self.monthClickEvent );
-            calendarHeaderRightArrow.bind( "click", { _self: _self, date: date, month: date.getMonth() + 1  }, _self.monthClickEvent );
+            calendarHeaderLeftArrow.bind( "click", { date: date, month: date.getMonth() - 1  }, $.proxy(this.monthClickEvent, this) );
+            calendarHeaderRightArrow.bind( "click", { date: date, month: date.getMonth() + 1  }, $.proxy(this.monthClickEvent,this) );
 
             calendarHeader.append(calendarHeaderLeftArrow);
             	calendarHeaderTitle.append(calendarHeaderTitleCaption);
@@ -122,7 +133,7 @@
 
             //generate day headings
             for(var i = 0; i<7; i++){
-            	calendarDays.append($('<div>', { "class": "calendar-cell" }).html(_self.options.titleDays[i]));
+            	calendarDays.append($('<div>', { "class": "calendar-cell" }).html(this.options.titleDays[i]));
             }
 
             var daysInMonth = new Date(date.getFullYear(), date.getMonth()+1, 0).getDate();
@@ -131,7 +142,7 @@
             //generate padding days
             for(var i = dayOffset; i>0; i--){
             	var content;
-            	if(_self.options.showPaddingDates){
+            	if(this.options.showPaddingDates){
             		var paddingDate = new Date(date.getFullYear(), date.getMonth(),1);
             		paddingDate.setDate(paddingDate.getDate()-i);
             		content = paddingDate.getDate();
@@ -147,9 +158,10 @@
             	thisDate.setDate(i);
             	
             	var classes = "calendar-cell";
-            	if( (id == _self.options.endDateId && thisDate <= _self.options.startDate) ||
-                    (thisDate < _self.options.minDate && _self.options.minDate instanceof Date  ) ||
-                    thisDate > _self.options.maxDate && _self.options.maxDate instanceof Date  )
+            	if( (id == this.options.endDateId && thisDate <= this.options.startDate) ||
+                    (thisDate < this.options.minDate && this.options.minDate instanceof Date  ) ||
+                    (thisDate > this.options.maxDate && this.options.maxDate instanceof Date  ) ||
+                    (id == this.options.startDateId && +thisDate == +this.options.maxDate && this.options.calendarMode == "range") )
             		classes += " disabled";
             	else
             		classes += " active";
@@ -157,13 +169,13 @@
             		classes += " selected";
             	var day = $('<div>', { "class": classes }).html(i);
             	if( (classes.indexOf('disabled') == -1) )
-	            	day.bind( "click", { _self: _self, date: date, day: i  }, _self.dayClickEvent );
+	            	day.bind( "click", { date: date, day: i  }, $.proxy(this.dayClickEvent,this) );
             	calendarDates.append(day);
             }
             //arse end paddings
             for(var i = 1; i <= 42 - (dayOffset+daysInMonth); i++){
             	var content;
-            	if(_self.options.showPaddingDates){
+            	if(this.options.showPaddingDates){
             		var paddingDate = new Date(date.getFullYear(), date.getMonth(),daysInMonth);
             		paddingDate.setDate(paddingDate.getDate()+i);
             		content = paddingDate.getDate();
@@ -182,33 +194,37 @@
         },
 
         dayClickEvent: function(event){
-        	var _self = event.data._self;
         	event.data.date.setDate(event.data.day);
-        	_self.dateUpdate(_self);
-        	_self.drawCalendars(_self);
+        	this.dateUpdate();
+        	this.drawCalendars();
         },
 
         monthClickEvent: function(event){
-        	var _self = event.data._self;
         	event.data.date.setMonth(event.data.month);
-        	_self.dateUpdate(_self);
-        	_self.drawCalendars(_self);
+        	this.dateUpdate();
+        	this.drawCalendars();
         },
 
-        dateUpdate: function(_self){
-        	if(_self.options.minDate instanceof Date && +_self.options.minDate > +_self.options.startDate){
-        		_self.options.startDate = new Date(_self.options.minDate.valueOf());
+        dateUpdate: function(){
+        	if(this.options.minDate instanceof Date && +this.options.minDate > +this.options.startDate){
+        		this.options.startDate = new Date(this.options.minDate.valueOf());
         	}
-        	if(_self.options.maxDate instanceof Date && +_self.options.maxDate < +_self.options.endDate){
-        		_self.options.endDate = new Date(_self.options.maxDate.valueOf());
+            if(this.options.maxDate instanceof Date && +this.options.maxDate <= +this.options.startDate){
+                this.options.startDate = new Date(this.options.maxDate.valueOf());
+                if(this.options.calendarMode == "range")
+                    this.options.startDate.setDate(this.options.startDate.getDate() - 1);
+            }
+        	if(this.options.maxDate instanceof Date && +this.options.maxDate < +this.options.endDate){
+        		this.options.endDate = new Date(this.options.maxDate.valueOf());
         	}
-        	if(+_self.options.endDate <= +_self.options.startDate){
-        		_self.options.endDate = new Date(_self.options.startDate.valueOf());
-        		_self.options.endDate.setDate(_self.options.endDate.getDate()+1);
+        	if(+this.options.endDate <= +this.options.startDate){
+        		this.options.endDate = new Date(this.options.startDate.valueOf());
+        		this.options.endDate.setDate(this.options.endDate.getDate()+1);
         	}
 
-        	_self.options.onDateChange(_self.options.startDate, _self.options.endDate, _self.options.shortDays, _self.options.longDays, _self.options.shortMonths, _self.options.longMonths );
-        }      
+        	this.options.onDateChange(this.options.startDate, this.options.endDate, this.options.shortDays, this.options.longDays, this.options.shortMonths, this.options.longMonths );
+        }
+
     };
 
     $.fn[pluginName] = function ( options ) {

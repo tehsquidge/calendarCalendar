@@ -18,22 +18,57 @@
 				.calendar-cell.disabled { color: gray; cursor: normal; }
 				.calendar-dates .calendar-cell.active { cursor: pointer; }
 				.calendar-dates .calendar-cell.active.active.selected, .calendar-dates .calendar-cell.active:hover { background: #6D142B; }
+				.max-month .calendar-arrow.right, .min-month .calendar-arrow.left { display: none; }
 		</style>
 	</head>
 	<body>
-		<input id="trigger" type="button" value="calendar">
-		<input id="startDate">
-		<input id="endDate">
+	<h1>Dual Calendar</h1>
+		<input id="dualTrigger" type="button" value="calendar">
+		<input id="dualStartDate">
+		<input id="dualEndDate">
 		<script type="text/javascript">
 		$(document).ready( function(){
-			$('#trigger').calendarCalendar({
+			$('#dualTrigger').calendarCalendar({
 				minDate: new Date(),
+				maxDate: new Date("2014-6-10"),
 				onDateChange: function(startDate, endDate,  shortDays, longDays, shortMonths, longMonths){
-					$('#startDate').val(longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
-					$('#endDate').val(longDays[endDate.getDay()] +" "+ endDate.getDate() +" "+longMonths[endDate.getMonth()]+" "+endDate.getFullYear());
+					$('#dualStartDate').val(longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
+					$('#dualEndDate').val(longDays[endDate.getDay()] +" "+ endDate.getDate() +" "+longMonths[endDate.getMonth()]+" "+endDate.getFullYear());
 				}
 			});
 		});
 		</script>
+	<h1>Single Calendars</h1>
+	Start: <input id="singleStartDate">
+	End: <input id="singleEndDate">
+	<script>
+		$(document).ready( function(){
+			var tomorrow = new Date();
+			tomorrow.setDate(tomorrow.getDate() + 1);
+			$('#singleEndDate').calendarCalendar({
+				calendarMode: "single",
+				startDate: tomorrow,
+				minDate: new Date(tomorrow.valueOf()),
+				onDateChange: function(startDate, endDate,  shortDays, longDays, shortMonths, longMonths){
+					$('#singleEndDate').val(longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
+				}
+			});
+			var today = new Date();
+			$('#singleStartDate').calendarCalendar({
+				calendarMode: "single",
+				startDate: today,
+				minDate: new Date(today.valueOf()),
+				onDateChange: function(startDate, endDate,  shortDays, longDays, shortMonths, longMonths){
+					$('#singleStartDate').val(longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
+					var tomorrow = new Date();
+					tomorrow.setDate(startDate.getDate() + 1);
+					var cal = $('#singleEndDate').data("plugin_calendarCalendar");
+					cal.options.minDate = new Date(tomorrow.valueOf());
+					cal.dateUpdate(cal);
+				}
+			});
+
+		});
+	</script>
 	</body>
 </html>
