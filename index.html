@@ -60,10 +60,8 @@
 				minDate: new Date(today.valueOf()),
 				onDateChange: function(startDate, endDate,  shortDays, longDays, shortMonths, longMonths){
 					$('#singleStartDate').val(longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
-					var tomorrow = new Date();
-					tomorrow.setDate(startDate.getDate() + 1);
 					var cal = $('#singleEndDate').data("plugin_calendarCalendar");
-					cal.options.minDate = new Date(tomorrow.valueOf());
+					cal.options.minDate = new Date(endDate.valueOf());
 					cal.dateUpdate(cal);
 				}
 			});
