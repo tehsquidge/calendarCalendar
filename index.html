@@ -61,7 +61,9 @@
 				onDateChange: function(startDate, endDate,  shortDays, longDays, shortMonths, longMonths){
 					$('#singleStartDate').val(longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
 					var cal = $('#singleEndDate').data("plugin_calendarCalendar");
-					cal.options.minDate = new Date(endDate.valueOf());
+					var d = new Date(startDate.valueOf());
+					d.setDate(d.getDate()+1);
+					cal.options.minDate = d;
 					cal.dateUpdate(cal);
 				}
 			});
