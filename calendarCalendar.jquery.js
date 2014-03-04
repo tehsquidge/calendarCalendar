@@ -196,7 +196,10 @@
         dayClickEvent: function(event){
         	event.data.date.setDate(event.data.day);
         	this.dateUpdate();
-        	this.drawCalendars();
+            if(this.options.calendarMode == "range")
+            	this.drawCalendars();
+            else
+                this.closeCalendar();
         },
 
         monthClickEvent: function(event){
