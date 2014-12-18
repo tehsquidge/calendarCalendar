@@ -92,13 +92,14 @@
             var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.startCalendarTitle);
             var secondCal = (this.options.calendarMode == "range") ? this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.endCalendarTitle) : "";
             var calendars = $('<div>', { "class": "calendars "+this.options.calendarMode } ).html(firstCal).append(secondCal);
-            calendars.offset($.proxy(this.options.calculatePosition, this, $(this.element)));
+            calendars.css( $.proxy( this.options.calculatePosition, this, $(this.element) )() );
             this.container.html(exitDiv).append(calendars);
         },  
 
         calculatePosition: function(element) {
             var offset = element.offset();
-            return {top: offset.top + element.outerHeight(), left: offset.left + element.outerWidth()};
+            var result = { top: offset.top + element.outerHeight(), left: offset.left + element.outerWidth() };
+            return result;
         },
 
         generateCalendar: function(date, id, title) {
