@@ -31,9 +31,9 @@
 			$('#dualTrigger').calendarCalendar({
 				minDate: new Date(),
 				maxDate: new Date("2014-6-10"),
-				onDateChange: function(startDate, endDate,  shortDays, longDays, shortMonths, longMonths){
-					$('#dualStartDate').val(longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
-					$('#dualEndDate').val(longDays[endDate.getDay()] +" "+ endDate.getDate() +" "+longMonths[endDate.getMonth()]+" "+endDate.getFullYear());
+				onDateChange: function(startDate, endDate,  lexicon){
+					$('#dualStartDate').val(lexicon.longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+lexicon.longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
+					$('#dualEndDate').val(lexicon.longDays[endDate.getDay()] +" "+ endDate.getDate() +" "+lexicon.longMonths[endDate.getMonth()]+" "+endDate.getFullYear());
 				}
 			});
 		});
@@ -49,8 +49,8 @@
 				calendarMode: "single",
 				startDate: tomorrow,
 				minDate: new Date(tomorrow.valueOf()),
-				onDateChange: function(startDate, endDate,  shortDays, longDays, shortMonths, longMonths){
-					$('#singleEndDate').val(longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
+				onDateChange: function(startDate, endDate,  lexicon){
+					$('#singleEndDate').val(lexicon.longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+lexicon.longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
 				}
 			});
 			var today = new Date();
@@ -58,8 +58,8 @@
 				calendarMode: "single",
 				startDate: today,
 				minDate: new Date(today.valueOf()),
-				onDateChange: function(startDate, endDate,  shortDays, longDays, shortMonths, longMonths){
-					$('#singleStartDate').val(longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
+				onDateChange: function(startDate, endDate, lexicon){
+					$('#singleStartDate').val(lexicon.longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+lexicon.longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
 					var cal = $('#singleEndDate').data("plugin_calendarCalendar");
 					var d = new Date(startDate.valueOf());
 					d.setDate(d.getDate()+1);

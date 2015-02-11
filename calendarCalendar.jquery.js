@@ -1,14 +1,17 @@
-
 ;(function ( $, window, document, undefined ) {
 
     var d1 = new Date(), d2 = new Date(), pluginName = "calendarCalendar",
         defaults = {
             containerName: "calendarCalendar",
-            titleDays: ['Su','Mo','Tu','We','Th','Fr','Sa'],
-            shortDays: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
-            longDays: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-            shortMonths: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-            longMonths: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+            lexicon: {
+                titleDays: ['Su','Mo','Tu','We','Th','Fr','Sa'],
+                shortDays: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+                longDays: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+                shortMonths: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                longMonths: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+                startCalendarTitle: 'Arrive On',
+                endCalendarTitle: 'Depart On'
+            },
             startCalendarTitle: 'Arrive On',
             endCalendarTitle: 'Depart On',
 			startDateId: "calendar-start-date",
@@ -17,7 +20,7 @@
             endDate: new Date(d2.setDate(d1.getDate()+1)),
             minDate: null,
             maxDate: null,
-            onDateChange: function(startDate, endDate, shortDays, longDays, shortMonths, longMonths){ },
+            onDateChange: function(startDate, endDate, lexicon){ },
             calculatePosition: function(element){ return this.calculatePosition(element); },
             showPaddingDates: false,
             calendarMode: "range" //also accepts "single"
@@ -49,7 +52,7 @@
                 this.container = $('#'+this.options.containerName);
             }
             this.container.hide();
-            $(this.element).bind("click", $.proxy(this.drawCalendars,this));
+            $(this.element).unbind("click", $.proxy(this.drawCalendars,this)).bind("click", $.proxy(this.drawCalendars,this));
 
             this.options.calendarMode = (this.options.calendarMode == "single" || this.options.calendarMode == "range") ? this.options.calendarMode : "range";
             
@@ -66,7 +69,7 @@
             if(this.options.minDate != null) { this.options.minDate.setHours(0,0,0,0); }
             if(this.options.maxDate != null) { this.options.maxDate.setHours(0,0,0,0); }
 
-            $(window).bind("resize", $.proxy(this.resize,this));
+            $(window).unbind("resize", $.proxy(this.resize,this)).bind("resize", $.proxy(this.resize,this));
 
         },
 
@@ -89,8 +92,8 @@
             this.container.show();
             var exitDiv = $('<div>', { "class": "background" });
             exitDiv.bind("click",$.proxy(this.closeCalendar,this));
-            var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.startCalendarTitle);
-            var secondCal = (this.options.calendarMode == "range") ? this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.endCalendarTitle) : "";
+            var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.lexicon.startCalendarTitle);
+            var secondCal = (this.options.calendarMode == "range") ? this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.lexicon.endCalendarTitle) : "";
             var calendars = $('<div>', { "class": "calendars "+this.options.calendarMode } ).html(firstCal).append(secondCal);
             calendars.css( $.proxy( this.options.calculatePosition, this, $(this.element) )() );
             this.container.html(exitDiv).append(calendars);
@@ -115,7 +118,7 @@
                     var calendarHeaderLeftArrow = $('<div>', { "class": "calendar-arrow left" });
                     var calendarHeaderTitle = $('<div>', { "class": "calendar-title" });
                         var calendarHeaderTitleCaption = $('<div>', { "class": "calendar-caption" }).html(title);
-                        var calendarHeaderTitleDate = $('<div>', { "class": "calendar-date" }).html(this.options.longMonths[date.getMonth()] + " " + date.getFullYear());
+                        var calendarHeaderTitleDate = $('<div>', { "class": "calendar-date" }).html(this.options.lexicon.longMonths[date.getMonth()] + " " + date.getFullYear());
                     var calendarHeaderRightArrow = $('<div>', { "class": "calendar-arrow right" });
             	var calendarMain = $('<div>', { "class": "caldendar-main" });
             		var calendarDays = $('<div>', { "class": "calendar-days calendar-table"});
@@ -134,7 +137,7 @@
 
             //generate day headings
             for(var i = 0; i<7; i++){
-            	calendarDays.append($('<div>', { "class": "calendar-cell" }).html(this.options.titleDays[i]));
+            	calendarDays.append($('<div>', { "class": "calendar-cell" }).html(this.options.lexicon.titleDays[i]));
             }
 
             var daysInMonth = new Date(date.getFullYear(), date.getMonth()+1, 0).getDate();
@@ -226,7 +229,7 @@
         		this.options.endDate.setDate(this.options.endDate.getDate()+1);
         	}
 
-        	this.options.onDateChange(this.options.startDate, this.options.endDate, this.options.shortDays, this.options.longDays, this.options.shortMonths, this.options.longMonths );
+        	this.options.onDateChange(this.options.startDate, this.options.endDate, this.options.lexicon );
         }
 
     };
@@ -237,6 +240,11 @@
                 var plugin = new Plugin( this, options );
                 $.data(this, "plugin_" + pluginName,
                 plugin);
+            }else{
+                //UPDATE options
+                var plugin = $.data(this, "plugin_" + pluginName);
+                plugin.options = $.extend( {}, plugin.options, options);
+                plugin.init();
             }
         });
     };
