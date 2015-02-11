@@ -29,7 +29,7 @@
     function Plugin( element, options ) {
         this.element = element;
 
-        this.options = $.extend( {}, defaults, options) ;
+        this.options = $.extend(true, {}, defaults, options) ;
 
         this._defaults = defaults;
         this._name = pluginName;
@@ -243,7 +243,7 @@
             }else{
                 //UPDATE options
                 var plugin = $.data(this, "plugin_" + pluginName);
-                plugin.options = $.extend( {}, plugin.options, options);
+                plugin.options = $.extend(true, {}, plugin.options, options);
                 plugin.init();
             }
         });

@@ -88,3 +88,16 @@ var lexicon = {
 $('#myCalendar').calendarCalendar({'lexicon': lexicon});
 
 ````
+
+If you only need to change one part you only need to define that part:
+
+```
+
+var lexicon = {
+                startCalendarTitle: 'Beginning',
+                endCalendarTitle: 'End'
+            }
+
+$('#myCalendar').calendarCalendar({'lexicon': lexicon});
+
+````
