@@ -162,11 +162,15 @@
             	calendarDates.append($('<div>', { "class": "calendar-cell disabled padding" }).html(content));
             }
 
+            var today = new Date();
+            today.setHours(0,0,0,0);
+
             //generate days
             for(var i = 1; i<=daysInMonth; i++){
             	var thisDate = new Date(date.valueOf());
             	thisDate.setDate(i);
-            	
+                thisDate.setHours(0,0,0,0);
+
             	var classes = "calendar-cell";
             	if( (id == this.options.endDateId && thisDate <= this.options.startDate) ||
                     (thisDate < this.options.minDate && this.options.minDate instanceof Date  ) ||
@@ -177,6 +181,8 @@
             		classes += " active";
             	if( i == date.getDate())
             		classes += " selected";
+                if(thisDate.getTime() == today.getTime())
+                    classes += " today";
             	var day = $('<div>', { "class": classes }).html(i);
             	if( (classes.indexOf('disabled') == -1) )
 	            	day.bind( "click", { date: date, day: i  }, $.proxy(this.dayClickEvent,this) );
