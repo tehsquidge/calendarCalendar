@@ -89,12 +89,14 @@
         drawCalendars: function() {
         	//this may not be overly efficient but it seems to be a negligable performance hit
             this.open = true;
+            this.container.css('opacity', 0);
             this.container.show();
             var exitDiv = $('<div>', { "class": "background" });
             exitDiv.bind("click",$.proxy(this.closeCalendar,this));
             var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.lexicon.startCalendarTitle);
             var secondCal = (this.options.calendarMode == "range") ? this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.lexicon.endCalendarTitle) : "";
             var calendars = $('<div>', { "class": "calendars "+this.options.calendarMode } ).html(firstCal).append(secondCal);
+            this.container.html(exitDiv).append(calendars);
             try {
                 calendars.css( $.proxy( this.options.calculatePosition, this, $(this.element) )() );
             }
@@ -102,7 +104,7 @@
                 console.log('custom calculatePosition returned dud positioning - using the default positioning');
                 calendars.css( $.proxy( this.calculatePosition, this, $(this.element) )() );
             }
-            this.container.html(exitDiv).append(calendars);
+            this.container.css('opacity', 1);
         },  
 
         calculatePosition: function(element) {
