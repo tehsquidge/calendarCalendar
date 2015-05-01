@@ -77,6 +77,7 @@
             this.open = false;
         	this.container.hide();
             this.container.html("");
+            return 'closed';
         },
 
 
@@ -84,6 +85,7 @@
             if(this.open){
                 this.drawCalendars();
             }
+            return 'resized';
         },
 
         drawCalendars: function() {
