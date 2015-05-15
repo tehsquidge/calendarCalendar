@@ -26,7 +26,8 @@
             calendarMode: "range", //also accepts "single"
             showBackground: true,
             showCloseButton: false,
-            closeButtonContent: 'x'
+            closeButtonContent: 'x',
+            closeOnDateSelect: false
         };
 
     function Plugin( element, options ) {
@@ -94,7 +95,7 @@
         drawCalendars: function() {
         	//this may not be overly efficient but it seems to be a negligable performance hit
             this.open = true;
-            this.container.css('opacity', 0);
+            //this.container.css('opacity', 0);
             this.container.show();
 
             var exitDiv = "";
@@ -120,7 +121,7 @@
                 console.log('custom calculatePosition returned dud positioning - using the default positioning');
                 calendars.css( $.proxy( this.calculatePosition, this, $(this.element) )() );
             }
-            this.container.css('opacity', 1);
+            //this.container.css('opacity', 1);
         },  
 
         calculatePosition: function(element) {
@@ -203,7 +204,7 @@
                     classes += " today";
             	var day = $('<div>', { "class": classes }).html(i);
             	if( (classes.indexOf('disabled') == -1) )
-	            	day.bind( "click", { date: date, day: i  }, $.proxy(this.dayClickEvent,this) );
+	            	day.bind( "click", { date: date, day: i, id: id  }, $.proxy(this.dayClickEvent,this) );
             	calendarDates.append(day);
             }
             //arse end paddings
@@ -230,10 +231,15 @@
         dayClickEvent: function(event){
         	event.data.date.setDate(event.data.day);
         	this.dateUpdate();
-            if(this.options.calendarMode == "range")
-            	this.drawCalendars();
-            else
-                this.closeCalendar();
+            if(this.options.closeOnDateSelect)
+                if(this.options.calendarMode == "range" && event.data.id != this.options.endDateId)
+                    this.drawCalendars();
+                else
+                    this.closeCalendar();
+            else{
+                this.drawCalendars();
+            }
+
         },
 
         monthClickEvent: function(event){

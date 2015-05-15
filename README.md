@@ -60,7 +60,10 @@ options
 | calculatePosition  | triggers when showing the calendar. Accepts Function.                                    | ```function(element) { }``` default positioning is the the top left of the triggering element               |
 | showPaddingDates   | show the preceding and trailing days from the surrounding months. Accepts boolean.       | ```false```                                                                                                           |
 | calendarMode       | accepts "single" or "range". Single is a single calendar. Range is two.                  |     'range'                                                                                                       |
-
+| showBackground | Whether to show the masking background which you can click to exit | ```true``` |
+| showCloseButton | Whether to show a close button | ```false``` |
+| closeButtonContent | The content of the close button | 'x' |
+| closeOnDateSelect | If this is selected the calendar will close once the dates are selected. The 'range' mode closes when the second date is selected, never on the first | ```false``` |
 Overwriting Options
 ===================
 
