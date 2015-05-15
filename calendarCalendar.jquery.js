@@ -23,7 +23,10 @@
             onDateChange: function(startDate, endDate, lexicon){ },
             calculatePosition: function(element){ return this.calculatePosition(element); },
             showPaddingDates: false,
-            calendarMode: "range" //also accepts "single"
+            calendarMode: "range", //also accepts "single"
+            showBackground: true,
+            showCloseButton: false,
+            closeButtonContent: 'x'
         };
 
     function Plugin( element, options ) {
@@ -93,11 +96,22 @@
             this.open = true;
             this.container.css('opacity', 0);
             this.container.show();
-            var exitDiv = $('<div>', { "class": "background" });
-            exitDiv.bind("click",$.proxy(this.closeCalendar,this));
+
+            var exitDiv = "";
+            if(this.options.showBackground){
+                exitDiv = $('<div>', { "class": "background" });
+                exitDiv.bind("click",$.proxy(this.closeCalendar,this));
+            }
+            var closeButton = "";
+            if(this.options.showCloseButton){
+                closeButton = $('<div>', { "class":"close-button" }).html(this.options.closeButtonContent);
+                closeButton.bind("click",$.proxy(this.closeCalendar,this));
+            }
+
             var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.lexicon.startCalendarTitle);
             var secondCal = (this.options.calendarMode == "range") ? this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.lexicon.endCalendarTitle) : "";
-            var calendars = $('<div>', { "class": "calendars "+this.options.calendarMode } ).html(firstCal).append(secondCal);
+            var calendars = $('<div>', { "class": "calendars "+this.options.calendarMode } ).html(firstCal).append(secondCal).append(closeButton);
+
             this.container.html(exitDiv).append(calendars);
             try {
                 calendars.css( $.proxy( this.options.calculatePosition, this, $(this.element) )() );
