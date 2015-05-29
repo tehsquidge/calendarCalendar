@@ -52,7 +52,7 @@
             this.container = $('#'+this.options.containerName);
 
             if(this.container.length == 0){
-                this.container = $('<div>', { id: this.options.containerName });
+                this.container = $('<div>', { id: this.options.containerName, 'class': 'calendarCalendar' });
                 $('body').append(this.container);
                 this.container = $('#'+this.options.containerName);
             }
