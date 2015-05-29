@@ -64,6 +64,8 @@ options
 | showCloseButton | Whether to show a close button | ```false``` |
 | closeButtonContent | The content of the close button | 'x' |
 | closeOnDateSelect | If this is selected the calendar will close once the dates are selected. The 'range' mode closes when the second date is selected, never on the first | ```false``` |
+| initializeDateChange | If true, runs the onDateChange callback on initilize. | ```true``` |
+
 Overwriting Options
 ===================
 

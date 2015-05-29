@@ -31,7 +31,6 @@
 		$(document).ready( function(){
 			$('#dualTrigger').calendarCalendar({
 				minDate: new Date(),
-				maxDate: new Date("2014-6-10"),
                 closeOnDateSelect: true,
 				onDateChange: function(startDate, endDate,  lexicon){
 					$('#dualStartDate').val(lexicon.longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+lexicon.longMonths[startDate.getMonth()]+" "+startDate.getFullYear());

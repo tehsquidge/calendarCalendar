@@ -27,7 +27,8 @@
             showBackground: true,
             showCloseButton: false,
             closeButtonContent: 'x',
-            closeOnDateSelect: false
+            closeOnDateSelect: false,
+            initializeDateChange: true //run onDateChange when initilizing
         };
 
     function Plugin( element, options ) {
@@ -66,7 +67,7 @@
             	this.options.maxDate = null;
             	this.options.maxDate = null;
             }
-            this.dateUpdate(this);
+            this.dateUpdate(this.options.initializeDateChange);
 
             if(this.options.startDate != null) { this.options.startDate.setHours(0,0,0,0); }
             if(this.options.endDate != null) { this.options.endDate.setHours(0,0,0,0); }
@@ -248,7 +249,9 @@
         	this.drawCalendars();
         },
 
-        dateUpdate: function(){
+        dateUpdate: function(runDateChange){
+            runDateChange = (typeof runDateChange === 'undefined') ? true : runDateChange;
+
         	if(this.options.minDate instanceof Date && +this.options.minDate > +this.options.startDate){
         		this.options.startDate = new Date(this.options.minDate.valueOf());
         	}
@@ -264,8 +267,8 @@
         		this.options.endDate = new Date(this.options.startDate.valueOf());
         		this.options.endDate.setDate(this.options.endDate.getDate()+1);
         	}
-
-        	this.options.onDateChange(this.options.startDate, this.options.endDate, this.options.lexicon );
+            if(runDateChange)
+        	   this.options.onDateChange(this.options.startDate, this.options.endDate, this.options.lexicon );
         }
 
     };
