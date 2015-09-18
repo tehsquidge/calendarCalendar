@@ -31,11 +31,16 @@
 		$(document).ready( function(){
 			$('#dualTrigger').calendarCalendar({
 				minDate: new Date(),
-                closeOnDateSelect: true,
 				onDateChange: function(startDate, endDate,  lexicon){
 					$('#dualStartDate').val(lexicon.longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+lexicon.longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
 					$('#dualEndDate').val(lexicon.longDays[endDate.getDay()] +" "+ endDate.getDate() +" "+lexicon.longMonths[endDate.getMonth()]+" "+endDate.getFullYear());
-				}
+				},
+                onOpen: function(startDate, endDate,  lexicon, element){
+                    alert('open!');
+                },
+                onClose: function(startDate, endDate,  lexicon, element){
+                    alert('close!');
+                }
 			});
 		});
 		</script>

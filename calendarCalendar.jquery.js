@@ -22,6 +22,8 @@
             maxDate: null,
             onDateChange: function(startDate, endDate, lexicon){ },
             calculatePosition: function(element){ return this.calculatePosition(element); },
+            onOpen: function(startDate, endDate, lexicon, element){ },
+            onClose: function(startDate, endDate, lexicon, element){ },
             showPaddingDates: false,
             calendarMode: "range", //also accepts "single"
             showBackground: true,
@@ -82,6 +84,7 @@
             this.open = false;
         	this.container.hide();
             this.container.html("");
+            this.options.onClose(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
             return 'closed';
         },
 
@@ -94,6 +97,9 @@
         },
 
         drawCalendars: function() {
+            if(!this.open){
+                this.options.onOpen(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
+            }
         	//this may not be overly efficient but it seems to be a negligable performance hit
             this.open = true;
             //this.container.css('opacity', 0);
