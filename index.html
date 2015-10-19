@@ -30,6 +30,7 @@
 		<script type="text/javascript">
 		$(document).ready( function(){
 			$('#dualTrigger').calendarCalendar({
+                initializeDateChange: true,
 				minDate: new Date(),
 				onDateChange: function(startDate, endDate,  lexicon){
 					$('#dualStartDate').val(lexicon.longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+lexicon.longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
@@ -38,7 +39,7 @@
                 onOpen: function(startDate, endDate,  lexicon, element){
                     alert('open!');
                 },
-                onClose: function(startDate, endDate,  lexicon, element){
+                onClose: function(){
                     alert('close!');
                 }
 			});
