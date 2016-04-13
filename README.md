@@ -123,6 +123,7 @@ $('#trigger').calendarCalendar({
 ```
 
 You should note that some of the callback options change, simplifying `startDate` and `endDate` into just `date`.
+
 |       Option       |                       Default                                      |
 |--------------------|--------------------------------------------------------------------|
 | onDateChange       | ```function(date, lexicon){ } ```                                  |
