@@ -10,20 +10,19 @@
                 shortMonths: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
                 longMonths: ['January','February','March','April','May','June','July','August','September','October','November','December'],
                 startCalendarTitle: 'Arrive On',
-                endCalendarTitle: 'Depart On'
+                endCalendarTitle: 'Depart On',
+                singleCalendarTitle: ''
             },
-            startCalendarTitle: 'Arrive On',
-            endCalendarTitle: 'Depart On',
 			startDateId: "calendar-start-date",
 			endDateId: "calendar-end-date",
             startDate: d1,
             endDate: new Date(d2.setDate(d1.getDate()+1)),
             minDate: null,
             maxDate: null,
-            onDateChange: function(startDate, endDate, lexicon){ },
+            onDateChange: function(){ },
             calculatePosition: function(element){ return this.calculatePosition(element); },
-            onOpen: function(startDate, endDate, lexicon, element){ },
-            onClose: function(startDate, endDate, lexicon, element){ },
+            onOpen: function(){ },
+            onClose: function(){ },
             showPaddingDates: false,
             calendarMode: "range", //also accepts "single"
             showBackground: true,
@@ -84,7 +83,11 @@
             this.open = false;
         	this.container.hide();
             this.container.html("");
-            this.options.onClose(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
+            if(this.options.calendarMode == "range"){
+                this.options.onClose(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
+            }else{
+                this.options.onClose(this.options.startDate, this.options.lexicon, this.element);
+            }
             return 'closed';
         },
 
@@ -98,7 +101,11 @@
 
         drawCalendars: function() {
             if(!this.open){
-                this.options.onOpen(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
+                if(this.options.calendarMode == "range"){
+                    this.options.onOpen(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
+                } else {
+                    this.options.onOpen(this.options.startDate, this.options.lexicon, this.element);
+                }
             }
         	//this may not be overly efficient but it seems to be a negligable performance hit
             this.open = true;
@@ -115,9 +122,13 @@
                 closeButton = $('<div>', { "class":"close-button" }).html(this.options.closeButtonContent);
                 closeButton.bind("click",$.proxy(this.closeCalendar,this));
             }
-
-            var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.lexicon.startCalendarTitle);
-            var secondCal = (this.options.calendarMode == "range") ? this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.lexicon.endCalendarTitle) : "";
+            if(this.options.calendarMode == "range"){
+                var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.lexicon.startCalendarTitle);
+                var secondCal = this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.lexicon.endCalendarTitle);
+            }else{
+                var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.lexicon.singleCalendarTitle);
+                var secondCal = '';
+            }
             var calendars = $('<div>', { "class": "calendars "+this.options.calendarMode } ).html(firstCal).append(secondCal).append(closeButton);
 
             this.container.html(exitDiv).append(calendars);
@@ -273,8 +284,13 @@
         		this.options.endDate = new Date(this.options.startDate.valueOf());
         		this.options.endDate.setDate(this.options.endDate.getDate()+1);
         	}
-            if(runDateChange)
-        	   this.options.onDateChange(this.options.startDate, this.options.endDate, this.options.lexicon );
+            if(runDateChange){
+                if(this.options.calendarMode == "range"){
+                    this.options.onDateChange(this.options.startDate, this.options.endDate, this.options.lexicon );
+                }else{
+                    this.options.onDateChange(this.options.startDate, this.options.lexicon );
+                }
+           }
         }
 
     };

@@ -16,7 +16,7 @@ You will need to define a callback to get the dates out:
 $('#trigger').calendarCalendar({
 	onDateChange: function(startDate, endDate,  lexicon){
 		$('#dualStartDate').val(lexicon.longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+lexicon.longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
-					$('#dualEndDate').val(lexicon.longDays[endDate.getDay()] +" "+ endDate.getDate() +" "+lexicon.longMonths[endDate.getMonth()]+" "+endDate.getFullYear());
+		$('#dualEndDate').val(lexicon.longDays[endDate.getDay()] +" "+ endDate.getDate() +" "+lexicon.longMonths[endDate.getMonth()]+" "+endDate.getFullYear());
 	}
 });
 
@@ -89,12 +89,13 @@ var lexicon = {
                 shortMonths: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
                 longMonths: ['January','February','March','April','May','June','July','August','September','October','November','December'],
                 startCalendarTitle: 'Arrive On',
-                endCalendarTitle: 'Depart On'
+                endCalendarTitle: 'Depart On',
+				singleCalendarTitle: ''
             }
 
 $('#myCalendar').calendarCalendar({'lexicon': lexicon});
 
-````
+```
 
 If you only need to change one part you only need to define that part:
 
@@ -107,4 +108,31 @@ var lexicon = {
 
 $('#myCalendar').calendarCalendar({'lexicon': lexicon});
 
-````
+```
+
+Single Calendar Mode
+====================
+
+It's possible to use calendarCalendar to pick a sign date, rather than pick a range. To do this you must set `calendarMode` to `single`.
+
+```
+$('#trigger').calendarCalendar({
+				calendarMode: "single",
+				onDateChange: function(date, lexicon){ /* update relative fields */ }
+});
+```
+
+You should note that some of the callback options change, simplifying `startDate` and `endDate` into just `date`.
+|       Option       |                       Default                                      |
+|--------------------|--------------------------------------------------------------------|
+| onDateChange       | ```function(date, lexicon){ } ```                                  |
+| onOpen             | ```function(date, lexicon, element){ } ```                         |
+| onClose            | ```function(date, lexicon, element){ } ```                         |
+
+
+If you wish to change the title of a single calendar the option is:
+```
+var lexicon = {
+                singleCalendarTitle: 'Date'
+            }
+```

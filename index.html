@@ -37,15 +37,32 @@
 					$('#dualEndDate').val(lexicon.longDays[endDate.getDay()] +" "+ endDate.getDate() +" "+lexicon.longMonths[endDate.getMonth()]+" "+endDate.getFullYear());
 				},
                 onOpen: function(startDate, endDate,  lexicon, element){
-                    alert('open!');
+                    console.log('open!');
                 },
                 onClose: function(){
-                    alert('close!');
+                    console.log('close!');
                 }
 			});
 		});
 		</script>
-	<h1>Single Calendars</h1>
+
+	<h1>Single Calendar</h1>
+	
+	Date : <input id="singleDate">
+	<script>
+		$(document).ready( function(){
+			var today = new Date();
+			$('#singleDate').calendarCalendar({
+				calendarMode: "single",
+				minDate: today,
+				onDateChange: function(date, lexicon){
+					$('#singleDate').val(lexicon.longDays[date.getDay()] +" "+ date.getDate() +" "+lexicon.longMonths[date.getMonth()]+" "+date.getFullYear());
+				}
+			});
+		});
+	</script>	
+
+	<h1>Single Calendars tied</h1>
 	Start: <input id="singleStartDate">
 	End: <input id="singleEndDate">
 	<script>
@@ -58,8 +75,8 @@
                 showCloseButton: true,
                 showBackground: false,
 				minDate: new Date(tomorrow.valueOf()),
-				onDateChange: function(startDate, endDate,  lexicon){
-					$('#singleEndDate').val(lexicon.longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+lexicon.longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
+				onDateChange: function(date, lexicon){
+					$('#singleEndDate').val(lexicon.longDays[date.getDay()] +" "+ date.getDate() +" "+lexicon.longMonths[date.getMonth()]+" "+date.getFullYear());
 				}
 			});
 			var today = new Date();
@@ -69,13 +86,12 @@
                 showCloseButton: true,
                 showBackground: false,
 				minDate: new Date(today.valueOf()),
-				onDateChange: function(startDate, endDate, lexicon){
-					$('#singleStartDate').val(lexicon.longDays[startDate.getDay()] +" "+ startDate.getDate() +" "+lexicon.longMonths[startDate.getMonth()]+" "+startDate.getFullYear());
-					var cal = $('#singleEndDate').data("plugin_calendarCalendar");
-					var d = new Date(startDate.valueOf());
+				onDateChange: function(date, lexicon){
+					$('#singleStartDate').val(lexicon.longDays[date.getDay()] +" "+ date.getDate() +" "+lexicon.longMonths[date.getMonth()]+" "+date.getFullYear());
+					//set the minimum date on the end calendar
+					var d = new Date(date.valueOf());
 					d.setDate(d.getDate()+1);
-					cal.options.minDate = d;
-					cal.dateUpdate(cal);
+					$('#singleEndDate').calendarCalendar({ minDate: d });
 				}
 			});
 
