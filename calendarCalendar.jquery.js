@@ -49,7 +49,7 @@
         init: function() {
 
             this.open = false;
-            
+
             this.container = $('#'+this.options.containerName);
 
             if(this.container.length == 0){
@@ -57,11 +57,11 @@
                 $('body').append(this.container);
                 this.container = $('#'+this.options.containerName);
             }
-            this.container.hide();
+            this.container.removeClass('open');
             $(this.element).unbind("click", $.proxy(this.drawCalendars,this)).bind("click", $.proxy(this.drawCalendars,this));
 
             this.options.calendarMode = (this.options.calendarMode == "single" || this.options.calendarMode == "range") ? this.options.calendarMode : "range";
-            
+
             if(this.options.startDateId == this.options.endDateId)
             	this.options.endDateId += "2";
             if(this.options.maxDate < this.options.minDate ){
@@ -81,8 +81,7 @@
 
         closeCalendar: function(){
             this.open = false;
-        	this.container.hide();
-            this.container.html("");
+        	  this.container.removeClass('open');
             if(this.options.calendarMode == "range"){
                 this.options.onClose(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
             }else{
@@ -109,8 +108,8 @@
             }
         	//this may not be overly efficient but it seems to be a negligable performance hit
             this.open = true;
-            //this.container.css('opacity', 0);
-            this.container.show();
+
+            this.container.addClass('open');
 
             var exitDiv = "";
             if(this.options.showBackground){
@@ -140,7 +139,7 @@
                 calendars.css( $.proxy( this.calculatePosition, this, $(this.element) )() );
             }
             //this.container.css('opacity', 1);
-        },  
+        },
 
         calculatePosition: function(element) {
             var offset = element.offset();
