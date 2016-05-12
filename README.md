@@ -37,8 +37,8 @@ min and max dates:
 
 ```
 $('#trigger').calendarCalendar({
-				minDate: new Date();
-				maxDate: new Date(2029,10,12);
+				minDate: new Date(),
+				maxDate: new Date(2029,10,12)
 });
 ```
 
