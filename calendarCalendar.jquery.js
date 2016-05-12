@@ -131,14 +131,15 @@
             var calendars = $('<div>', { "class": "calendars "+this.options.calendarMode } ).html(firstCal).append(secondCal).append(closeButton);
 
             this.container.html(exitDiv).append(calendars);
-            try {
-                calendars.css( $.proxy( this.options.calculatePosition, this, $(this.element) )() );
+            if(this.options.calculatePosition != null){
+                try {
+                    calendars.css( $.proxy( this.options.calculatePosition, this, $(this.element) )() );
+                }
+                catch(err) {
+                    console.log('custom calculatePosition returned dud positioning - using the default positioning');
+                    calendars.css( $.proxy( this.calculatePosition, this, $(this.element) )() );
+                }
             }
-            catch(err) {
-                console.log('custom calculatePosition returned dud positioning - using the default positioning');
-                calendars.css( $.proxy( this.calculatePosition, this, $(this.element) )() );
-            }
-            //this.container.css('opacity', 1);
         },
 
         calculatePosition: function(element) {

@@ -59,7 +59,7 @@ options
 | onDateChange       | triggers when a date is changed. Accepts a function.                                     | ```function(startDate, endDate, lexicon){ } ```                                  |
 | onOpen             | triggers when a the calendar opens. Accepts a function.                                  | ```function(startDate, endDate, lexicon, element){ } ```                                  |
 | onClose            | triggers when a the calendar closes. Accepts a function.                                 | ```function(startDate, endDate, lexicon, element){ } ```                                  |
-| calculatePosition  | triggers when showing the calendar. Accepts Function.                                    | ```function(element) { }``` default positioning is the the top left of the triggering element               |
+| calculatePosition  | triggers when showing the calendar. Accepts Function or ```null``                        | ```function(element) { }``` default positioning is the the top left of the triggering element               |
 | showPaddingDates   | show the preceding and trailing days from the surrounding months. Accepts boolean.       | ```false```                                                                                                           |
 | calendarMode       | accepts "single" or "range". Single is a single calendar. Range is two.                  |     'range'                                                                                                       |
 | showBackground | Whether to show the masking background which you can click to exit | ```true``` |
