@@ -109,12 +109,12 @@
                 this.open = false;
                 this.container.removeClass('open');
                 this.container.attr('tabindex', '-2');  
-                this._lastFocusedElement.focus();                                
                 if(this.options.calendarMode == "range"){
                     this.options.onClose(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
                 }else{
                     this.options.onClose(this.options.startDate, this.options.lexicon, this.element);
                 }
+                setTimeout(function(){ this._lastFocusedElement.focus(); }.bind(this), 0);
                 return 'closed';
             }
         },
