@@ -58,7 +58,7 @@
                 this.container = $('#'+this.options.containerName);
             }
             this.container.removeClass('open');
-            $(this.element).unbind("click", $.proxy(this.drawCalendars,this)).bind("click", $.proxy(this.drawCalendars,this));
+            $(this.element).unbind("click", $.proxy(this.openCalendar,this)).bind("click", $.proxy(this.openCalendar,this));
 
             this.options.calendarMode = (this.options.calendarMode == "single" || this.options.calendarMode == "range") ? this.options.calendarMode : "range";
 
@@ -77,24 +77,39 @@
 
             $(window).unbind("resize", $.proxy(this.resize,this)).bind("resize", $.proxy(this.resize,this));
 
-            var plugin = this;
-            $(document).on('focus','*',  function( event ) {
-                var container = document.getElementById(plugin.options.containerName);
-                if ( plugin.open && !$.contains(container, event.target ) && container != event.target ) {
-                  event.stopPropagation();
-                  plugin.container.find('*[tabIndex]').first().focus();
-                }else{
-                    console.log(event.target);
-                }
-              });
+            $(document).on('focus','*', $.proxy(this._limitFocus,this) );            
 
+        },
+
+        _limitFocus: function( event ) {
+            var container = document.getElementById(this.options.containerName);
+            if ( this.open && !$.contains(container, event.target ) && container != event.target ) {
+              event.stopPropagation();
+              this.container.find('*[tabIndex]').first().focus();
+            }
+        },
+
+        openCalendar: function(){
+            this._lastFocusedElement = $(':focus');
+
+            if(!this.open){
+                if(this.options.calendarMode == "range"){
+                    this.options.onOpen(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
+                } else {
+                    this.options.onOpen(this.options.startDate, this.options.lexicon, this.element);
+                }
+            }
+
+            this.drawCalendars();
+            
         },
 
         closeCalendar: function(event){
             if (event.type != "keypress" || event.keyCode == 13){                                              
                 this.open = false;
                 this.container.removeClass('open');
-                this.container.attr('tabindex', '-2');            
+                this.container.attr('tabindex', '-2');  
+                this._lastFocusedElement.focus();                                
                 if(this.options.calendarMode == "range"){
                     this.options.onClose(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
                 }else{
@@ -115,14 +130,6 @@
         drawCalendars: function() {
 
             var tabIndex = 1;
-
-            if(!this.open){
-                if(this.options.calendarMode == "range"){
-                    this.options.onOpen(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
-                } else {
-                    this.options.onOpen(this.options.startDate, this.options.lexicon, this.element);
-                }
-            }
         	//this may not be overly efficient but it seems to be a negligable performance hit
             this.open = true;
 
@@ -142,7 +149,7 @@
                 var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.lexicon.startCalendarTitle, tabIndex);
                 var secondCal = this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.lexicon.endCalendarTitle, firstCal.find('*[tabIndex]').length );
             }else{
-                var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.lexicon.singleCalendarTitle, 0);
+                var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.lexicon.singleCalendarTitle, tabIndex);
                 var secondCal = '';
             }
             var calendars = $('<div>', { "class": "calendars "+this.options.calendarMode } ).html(firstCal).append(secondCal).append(closeButton);
@@ -285,14 +292,22 @@
                 else{
                     this.drawCalendars();
                 }
+                this.container.find('.calendar-cell.active.selected').focus();                
             }
         },
 
         monthClickEvent: function(event){
-            if (event.type != "keypress" || event.keyCode == 13){              
+            if (event.type != "keypress" || event.keyCode == 13){     
+                var el = event.target;
+                var parentId = $(el).parents('.calendar').attr('id');
+                var classes = "";
+                el.classList.forEach(function(e){
+                    classes += "."+e;
+                });
                 event.data.date.setMonth(event.data.month);
                 this.dateUpdate();
                 this.drawCalendars();
+                this.container.find("#" + parentId + " " + classes).focus();
             }
         },
 
