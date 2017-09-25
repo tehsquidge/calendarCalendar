@@ -288,7 +288,7 @@
                     if(this.options.calendarMode == "range" && event.data.id != this.options.endDateId)
                         this.drawCalendars();
                     else
-                        this.closeCalendar();
+                        this.closeCalendar(event);
                 else{
                     this.drawCalendars();
                 }

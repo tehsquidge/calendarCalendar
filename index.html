@@ -57,7 +57,7 @@
 			$('#singleDate').calendarCalendar({
 				calendarMode: "single",
 				minDate: today,
-				calculatePosition: null,
+				closeOnDateSelect: true,
 				onDateChange: function(date, lexicon){
 					$('#singleDate').val(lexicon.longDays[date.getDay()] +" "+ date.getDate() +" "+lexicon.longMonths[date.getMonth()]+" "+date.getFullYear());
 				}
