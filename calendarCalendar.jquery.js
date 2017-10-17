@@ -48,6 +48,12 @@
 
         init: function() {
 
+            //polyfil for IE
+            (function () {
+                if ( typeof NodeList.prototype.forEach === "function" ) return false;
+                NodeList.prototype.forEach = Array.prototype.forEach;
+            })();
+
             this.open = false;
 
             this.container = $('#'+this.options.containerName);
@@ -297,6 +303,7 @@
         },
 
         monthClickEvent: function(event){
+            console.log('monthClickEvent');
             if (event.type != "keypress" || event.keyCode == 13){     
                 var el = event.target;
                 var parentId = $(el).parents('.calendar').attr('id');
