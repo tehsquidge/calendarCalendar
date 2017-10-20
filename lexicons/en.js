@@ -6,5 +6,13 @@ var lexicon = {
                 longMonths: ['January','February','March','April','May','June','July','August','September','October','November','December'],
                 startCalendarTitle: 'Arrive On',
                 endCalendarTitle: 'Depart On',
-                singleCalendarTitle: ''
+                singleCalendarTitle: '',
+                accessibility: {
+                    elementDescription: 'You\'re on a date-picker field. Press enter to bring up the calendar to select your dates.',
+                    dateRangeDescription: 'This calendar picks a range and you can pick a start and end date.',
+                    singleCalendarDescription: 'This is a single date calendar, you can pick one date.',
+                    exitMessage: 'Exit Calendar',
+                    prevMonth: 'Previous Month',
+                    nextMonth: 'Next Month'
+                }
             }

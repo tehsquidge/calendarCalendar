@@ -11,7 +11,15 @@
                 longMonths: ['January','February','March','April','May','June','July','August','September','October','November','December'],
                 startCalendarTitle: 'Arrive On',
                 endCalendarTitle: 'Depart On',
-                singleCalendarTitle: ''
+                singleCalendarTitle: '',
+                accessibility: {
+                    elementDescription: 'You\'re on a date-picker field. Press enter to bring up the calendar to select your dates.',
+                    dateRangeDescription: 'This calendar picks a range and you can pick a start and end date.',
+                    singleCalendarDescription: 'This is a single date calendar, you can pick one date.',
+                    exitMessage: 'Exit Calendar',
+                    prevMonth: 'Previous Month',
+                    nextMonth: 'Next Month'
+                }
             },
 			startDateId: "calendar-start-date",
 			endDateId: "calendar-end-date",
@@ -48,24 +56,38 @@
 
         init: function() {
 
-            //polyfil for IE
-            (function () {
-                if ( typeof NodeList.prototype.forEach === "function" ) return false;
-                NodeList.prototype.forEach = Array.prototype.forEach;
-            })();
-
             this.open = false;
 
             this.container = $('#'+this.options.containerName);
+
+            if($(this.element).attr('ariadescribedby') == ""){
+                $(this.element).attr('aria-describedby','calendarCalendarElementDescription-'+this.options.calendarMode);
+            }
+            $(this.element).attr('aria-haspopup','true');
+            $(this.element).attr('aria-owns',this.options.containerName);
 
             if(this.container.length == 0){
                 this.container = $('<div>', { id: this.options.containerName, 'class': 'calendarCalendar' });
                 $('body').append(this.container);
                 this.container = $('#'+this.options.containerName);
+
+            }
+            if($('#calendarCalendarElementDescription-'+this.options.calendarMode).length == 0){
+                var message = this.options.lexicon.accessibility.elementDescription;
+                if(this.options.calendarMode == "single"){
+                    message += " "+this.options.lexicon.accessibility.singleCalendarDescription;
+                }else{
+                    message += " "+this.options.lexicon.accessibility.dateRangeDescription;
+                }
+                this.container.after(
+                    $('<div>',
+                        { 'id' : 'calendarCalendarElementDescription-'+this.options.calendarMode, 'style':'display:none;' }
+                    ).html(message)
+                );
             }
             this.container.removeClass('open');
-            $(this.element).unbind("click", $.proxy(this.openCalendar,this)).bind("click", $.proxy(this.openCalendar,this));
-
+            $(this.element).unbind("click keypress", $.proxy(this.openCalendar,this)).bind("click keypress", $.proxy(this.openCalendar,this));
+                            
             this.options.calendarMode = (this.options.calendarMode == "single" || this.options.calendarMode == "range") ? this.options.calendarMode : "range";
 
             if(this.options.startDateId == this.options.endDateId)
@@ -95,19 +117,20 @@
             }
         },
 
-        openCalendar: function(){
-            this._lastFocusedElement = $(':focus');
+        openCalendar: function(event){
+            if (event.type != "keypress" || event.keyCode == 13){                                                              
+                this._lastFocusedElement = $(':focus');
 
-            if(!this.open){
-                if(this.options.calendarMode == "range"){
-                    this.options.onOpen(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
-                } else {
-                    this.options.onOpen(this.options.startDate, this.options.lexicon, this.element);
+                if(!this.open){
+                    if(this.options.calendarMode == "range"){
+                        this.options.onOpen(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
+                    } else {
+                        this.options.onOpen(this.options.startDate, this.options.lexicon, this.element);
+                    }
                 }
-            }
 
-            this.drawCalendars();
-            
+                this.drawCalendars();
+            }
         },
 
         closeCalendar: function(event){
@@ -143,12 +166,12 @@
 
             var exitDiv = "";
             if(this.options.showBackground){
-                exitDiv = $('<div>', { "class": "background", "tabIndex": tabIndex++ });
+                exitDiv = $('<div>', { "class": "background", "aria-label" : this.options.lexicon.accessibility.exitMessage, "tabIndex": tabIndex++ });
                 exitDiv.bind("click keypress",$.proxy(this.closeCalendar,this));
             }
             var closeButton = "";
             if(this.options.showCloseButton){
-                closeButton = $('<div>', { "class":"close-button","tabIndex": tabIndex++ }).html(this.options.closeButtonContent);
+                closeButton = $('<div>', { "class":"close-button","aria-label" : this.options.lexicon.accessibility.exitMessage,"tabIndex": tabIndex++ }).html(this.options.closeButtonContent);
                 closeButton.bind("click keypress",$.proxy(this.closeCalendar,this));
             }
             if(this.options.calendarMode == "range"){
@@ -161,6 +184,7 @@
             var calendars = $('<div>', { "class": "calendars "+this.options.calendarMode } ).html(firstCal).append(secondCal).append(closeButton);
 
             this.container.html(exitDiv).append(calendars);
+
             if(this.options.calculatePosition != null){
                 try {
                     calendars.css( $.proxy( this.options.calculatePosition, this, $(this.element) )() );
@@ -192,13 +216,13 @@
 
             var calendarMarkup = $('<div>', { id:id, "class": calendarClasses});
                 var calendarHeader = $('<div>', { "class": "calendar-header" });
-                    var calendarHeaderLeftArrow = $('<a>', { "class": "calendar-arrow left" });
+                    var calendarHeaderLeftArrow = $('<a>', { "class": "calendar-arrow left","aria-label" : title +" "+this.options.lexicon.accessibility.prevMonth });
                     if(calendarClasses.indexOf('min-month'))
                         calendarHeaderLeftArrow.attr('tabIndex', tabIndex++);
                     var calendarHeaderTitle = $('<div>', { "class": "calendar-title" });
                         var calendarHeaderTitleCaption = $('<div>', { "class": "calendar-caption" }).html(title);
                         var calendarHeaderTitleDate = $('<div>', { "class": "calendar-date" }).html(this.options.lexicon.longMonths[date.getMonth()] + " " + date.getFullYear());
-                    var calendarHeaderRightArrow = $('<a>', { "class": "calendar-arrow right" });
+                    var calendarHeaderRightArrow = $('<a>', { "class": "calendar-arrow right","aria-label" : title +" "+this.options.lexicon.accessibility.nextMonth });
                     if(calendarClasses.indexOf('max-month'))
                         calendarHeaderRightArrow.attr('tabIndex', tabIndex++);
             	var calendarMain = $('<div>', { "class": "caldendar-main" });
@@ -262,6 +286,10 @@
             	if( (classes.indexOf('disabled') == -1) ){
                     day.bind( "click keypress", { date: date, day: i, id: id  }, $.proxy(this.dayClickEvent,this) );
                     day.attr('tabIndex', tabIndex++);
+                    var ariaMessage = this.options.lexicon.longDays[thisDate.getDay()] +", "+ i +", "+this.options.lexicon.longMonths[thisDate.getMonth()]+", "+thisDate.getFullYear();
+                    if(title != '')
+                        ariaMessage = title +", " + ariaMessage;
+                    day.attr('aria-label',ariaMessage);
                 }
             	calendarDates.append(day);
             }
@@ -303,12 +331,11 @@
         },
 
         monthClickEvent: function(event){
-            console.log('monthClickEvent');
             if (event.type != "keypress" || event.keyCode == 13){     
                 var el = event.target;
                 var parentId = $(el).parents('.calendar').attr('id');
                 var classes = "";
-                el.classList.forEach(function(e){
+                el.classList.toString().split(' ').forEach(function(e){
                     classes += "."+e;
                 });
                 event.data.date.setMonth(event.data.month);
