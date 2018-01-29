@@ -17,14 +17,14 @@
                     dateRangeDescription: 'This calendar picks a range and you can pick a start and end date.',
                     singleCalendarDescription: 'This is a single date calendar, you can pick one date.',
                     exitMessage: 'Exit Calendar',
-                    prevMonth: 'Previous Month',
+                    currentMonth: 'The current month is',
+                    prevMonth: 'Change to previous Month',
                     nextMonth: 'Next Month'
                 }
             },
 			startDateId: "calendar-start-date",
 			endDateId: "calendar-end-date",
             startDate: d1,
-            endDate: new Date(d2.setDate(d1.getDate()+1)),
             minDate: null,
             maxDate: null,
             onDateChange: function(){ },
@@ -370,6 +370,12 @@
                     this.options.onDateChange(this.options.startDate, this.options.lexicon );
                 }
            }
+        },
+
+        formatString: function(s, a) {
+            for (var i in a)
+                s = s.replace(new RegExp("\\{" + i + "\\}","gi"), a[i]);
+            return s;
         }
 
     };
