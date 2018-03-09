@@ -25,6 +25,7 @@
 			startDateId: "calendar-start-date",
 			endDateId: "calendar-end-date",
             startDate: d1,
+            endDate: d2,
             minDate: null,
             maxDate: null,
             onDateChange: function(){ },
@@ -57,6 +58,9 @@
         init: function() {
 
             this.open = false;
+
+            this.options.startDateView = new Date(this.options.startDate);
+            this.options.endDateView = new Date(this.options.endDate); 
 
             this.container = $('#'+this.options.containerName);
 
@@ -122,6 +126,8 @@
                 this._lastFocusedElement = $(':focus');
 
                 if(!this.open){
+                    this.options.startDateView = new Date(this.options.startDate);
+                    this.options.endDateView = new Date(this.options.endDate); 
                     if(this.options.calendarMode == "range"){
                         this.options.onOpen(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
                     } else {
@@ -157,7 +163,6 @@
         },
 
         drawCalendars: function() {
-
             var tabIndex = 1;
         	//this may not be overly efficient but it seems to be a negligable performance hit
             this.open = true;
@@ -175,10 +180,10 @@
                 closeButton.bind("click keypress",$.proxy(this.closeCalendar,this));
             }
             if(this.options.calendarMode == "range"){
-                var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.lexicon.startCalendarTitle, tabIndex);
-                var secondCal = this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.lexicon.endCalendarTitle, firstCal.find('*[tabIndex]').length );
+                var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.startDateView, this.options.lexicon.startCalendarTitle, tabIndex);
+                var secondCal = this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.endDateView, this.options.lexicon.endCalendarTitle, firstCal.find('*[tabIndex]').length );
             }else{
-                var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.lexicon.singleCalendarTitle, tabIndex);
+                var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.startDateView, this.options.lexicon.singleCalendarTitle, tabIndex);
                 var secondCal = '';
             }
             var calendars = $('<div>', { "class": "calendars "+this.options.calendarMode } ).html(firstCal).append(secondCal).append(closeButton);
@@ -205,9 +210,14 @@
             return result;
         },
 
-        generateCalendar: function(date, id, title, tabIndex) {
+        generateCalendar: function(selectedDate, id, date, title, tabIndex) {
+            //selectedDate = currently selected date
+            //id = the element ID of the calendar (start/end)
+            //date = the current date for the month to look at (separate from the selected date)
+            //title = the title of the calendar
+            //tabIndex = tabindex of calendar
             tabIndex = (typeof tabIndex !== 'undefined') ? tabIndex : 0;            
-
+            console.log(selectedDate); console.log(date);
             var calendarClasses = "calendar";
             if(this.options.maxDate instanceof Date && +date.getMonth() == +this.options.maxDate.getMonth() && +date.getFullYear() == +this.options.maxDate.getFullYear())
                 calendarClasses += " max-month";
@@ -256,7 +266,7 @@
             		paddingDate.setDate(paddingDate.getDate()-i);
             		content = paddingDate.getDate();
             	}else{
-            		content = "&nbsp;"
+            		content = "&nbsp;";
             	}
             	calendarDates.append($('<div>', { "class": "calendar-cell disabled padding" }).html(content));
             }
@@ -264,11 +274,14 @@
             var today = new Date();
             today.setHours(0,0,0,0);
 
+            var thisDate = new Date(date.valueOf());
+            thisDate.setHours(0,0,0,0);
+
+
             //generate days
             for(var i = 1; i<=daysInMonth; i++){
-            	var thisDate = new Date(date.valueOf());
-            	thisDate.setDate(i);
-                thisDate.setHours(0,0,0,0);
+                
+                thisDate.setDate(i);
 
             	var classes = "calendar-cell";
             	if( (id == this.options.endDateId && thisDate <= this.options.startDate) ||
@@ -278,13 +291,18 @@
             		classes += " disabled";
             	else
             		classes += " active";
-            	if( i == date.getDate())
-            		classes += " selected";
+                if(
+                    +thisDate.getDate() == +selectedDate.getDate() &&
+                    +thisDate.getMonth() == +selectedDate.getMonth() &&
+                    +thisDate.getFullYear() == +selectedDate.getFullYear()
+                ){
+                    classes += " selected";
+                }
                 if(thisDate.getTime() == today.getTime())
                     classes += " today";
                 var day = $('<a>', { "class": classes }).html(i);
             	if( (classes.indexOf('disabled') == -1) ){
-                    day.bind( "click keypress", { date: date, day: i, id: id  }, $.proxy(this.dayClickEvent,this) );
+                    day.bind( "click keypress", { selectedDate: selectedDate, date: date, day: i, id: id  }, $.proxy(this.dayClickEvent,this) );
                     day.attr('tabIndex', tabIndex++);
                     var ariaMessage = this.options.lexicon.longDays[thisDate.getDay()] +", "+ i +", "+this.options.lexicon.longMonths[thisDate.getMonth()]+", "+thisDate.getFullYear();
                     if(title != '')
@@ -301,7 +319,7 @@
             		paddingDate.setDate(paddingDate.getDate()+i);
             		content = paddingDate.getDate();
             	}else{
-            		content = "&nbsp;"
+            		content = "&nbsp;";
             	}
             	calendarDates.append($('<div>', { "class": "calendar-cell disabled padding" }).html(content));
             }
@@ -317,6 +335,9 @@
         dayClickEvent: function(event){
             if (event.type != "keypress" || event.keyCode == 13){                              
                 event.data.date.setDate(event.data.day);
+                event.data.selectedDate.setDate(event.data.date.getDate());
+                event.data.selectedDate.setMonth(event.data.date.getMonth());
+                event.data.selectedDate.setFullYear(event.data.date.getFullYear());
                 this.dateUpdate();
                 if(this.options.closeOnDateSelect)
                     if(this.options.calendarMode == "range" && event.data.id != this.options.endDateId)
@@ -339,7 +360,6 @@
                     classes += "."+e;
                 });
                 event.data.date.setMonth(event.data.month);
-                this.dateUpdate();
                 this.drawCalendars();
                 this.container.find("#" + parentId + " " + classes).focus();
             }
@@ -362,7 +382,9 @@
         	if(+this.options.endDate <= +this.options.startDate){
         		this.options.endDate = new Date(this.options.startDate.valueOf());
         		this.options.endDate.setDate(this.options.endDate.getDate()+1);
-        	}
+            }
+            this.options.startDateView = new Date(this.options.startDate);
+            this.options.endDateView = new Date(this.options.endDate); 
             if(runDateChange){
                 if(this.options.calendarMode == "range"){
                     this.options.onDateChange(this.options.startDate, this.options.endDate, this.options.lexicon );
