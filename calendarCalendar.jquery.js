@@ -179,12 +179,14 @@
                 closeButton = $('<div>', { "class":"close-button","aria-label" : this.options.lexicon.accessibility.exitMessage,"tabIndex": tabIndex++ }).html(this.options.closeButtonContent);
                 closeButton.bind("click keypress",$.proxy(this.closeCalendar,this));
             }
+            var firstCal;
+            var secondCal;
             if(this.options.calendarMode == "range"){
-                var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.startDateView, this.options.lexicon.startCalendarTitle, tabIndex);
-                var secondCal = this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.endDateView, this.options.lexicon.endCalendarTitle, firstCal.find('*[tabIndex]').length );
+                firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.startDateView, this.options.lexicon.startCalendarTitle, tabIndex);
+                secondCal = this.generateCalendar(this.options.endDate, this.options.endDateId, this.options.endDateView, this.options.lexicon.endCalendarTitle, firstCal.find('*[tabIndex]').length );
             }else{
-                var firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.startDateView, this.options.lexicon.singleCalendarTitle, tabIndex);
-                var secondCal = '';
+                firstCal = this.generateCalendar(this.options.startDate, this.options.startDateId, this.options.startDateView, this.options.lexicon.singleCalendarTitle, tabIndex);
+                secondCal = '';
             }
             var calendars = $('<div>', { "class": "calendars "+this.options.calendarMode } ).html(firstCal).append(secondCal).append(closeButton);
 
@@ -217,7 +219,6 @@
             //title = the title of the calendar
             //tabIndex = tabindex of calendar
             tabIndex = (typeof tabIndex !== 'undefined') ? tabIndex : 0;            
-            console.log(selectedDate); console.log(date);
             var calendarClasses = "calendar";
             if(this.options.maxDate instanceof Date && +date.getMonth() == +this.options.maxDate.getMonth() && +date.getFullYear() == +this.options.maxDate.getFullYear())
                 calendarClasses += " max-month";
@@ -308,6 +309,7 @@
                     if(title != '')
                         ariaMessage = title +", " + ariaMessage;
                     day.attr('aria-label',ariaMessage);
+
                 }
             	calendarDates.append(day);
             }
@@ -333,11 +335,27 @@
         },
 
         dayClickEvent: function(event){
-            if (event.type != "keypress" || event.keyCode == 13){                              
+            if (event.type != "keypress" || event.keyCode == 13 || event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40){                              
                 event.data.date.setDate(event.data.day);
                 event.data.selectedDate.setDate(event.data.date.getDate());
                 event.data.selectedDate.setMonth(event.data.date.getMonth());
                 event.data.selectedDate.setFullYear(event.data.date.getFullYear());
+                if(event.type == "keypress"){
+                    switch(event.keyCode){
+                        case 37: //left
+                        event.data.date.selectedDate(event.data.selectedDate.getDate() - 1);
+                        break;
+                        case 38: //up
+                        event.data.date.selectedDate(event.data.selectedDate.getDate() - 7);    
+                        break;
+                        case 39: //right
+                        event.data.date.selectedDate(event.data.selectedDate.getDate() + 1);
+                        break;
+                        case 40: //down
+                        event.data.date.selectedDate(event.data.selectedDate.getDate() + 7);    
+                        break;
+                    }
+                }
                 this.dateUpdate();
                 if(this.options.closeOnDateSelect)
                     if(this.options.calendarMode == "range" && event.data.id != this.options.endDateId)
