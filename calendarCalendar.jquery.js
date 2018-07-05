@@ -142,9 +142,9 @@
         },
 
         closeCalendar: function(event){
-            if (event.type != "keypress" || event.keyCode == 13){                                              
+            if (event.type != "keypress" || event.keyCode == 13){ 
                 this.open = false;
-                this.container.removeClass('open');
+                console.log(this.container.removeClass('open'));
                 this.container.attr('tabindex', '-2');  
                 if(this.options.calendarMode == "range"){
                     this.options.onClose(this.options.startDate, this.options.endDate, this.options.lexicon, this.element);
@@ -372,6 +372,7 @@
                             this.drawCalendars();
                         else
                             this.closeCalendar(event);
+                            return;
                     }else{
                         this.drawCalendars();
                     }
