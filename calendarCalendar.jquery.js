@@ -117,7 +117,7 @@
             var container = document.getElementById(this.options.containerName);
             if ( this.open && !$.contains(container, event.target ) && container != event.target ) {
               event.stopPropagation();
-              this.container.find('*[tabIndex]').first().focus();
+              this.container.find('*[tabindex]').first().focus();
             }
         },
 
@@ -136,6 +136,8 @@
                 }
 
                 this.drawCalendars();
+                setTimeout(function(){ this.container.find('*[tabindex]').first().focus(); }.bind(this), 0);
+                
             }
         },
 
@@ -171,12 +173,12 @@
 
             var exitDiv = "";
             if(this.options.showBackground){
-                exitDiv = $('<div>', { "class": "background", "aria-label" : this.options.lexicon.accessibility.exitMessage, "tabIndex": tabIndex++ });
+                exitDiv = $('<div>', { "class": "background", "aria-label" : this.options.lexicon.accessibility.exitMessage, "tabindex": tabIndex++ });
                 exitDiv.bind("click keypress",$.proxy(this.closeCalendar,this));
             }
             var closeButton = "";
             if(this.options.showCloseButton){
-                closeButton = $('<div>', { "class":"close-button","aria-label" : this.options.lexicon.accessibility.exitMessage,"tabIndex": tabIndex++ }).html(this.options.closeButtonContent);
+                closeButton = $('<div>', { "class":"close-button","aria-label" : this.options.lexicon.accessibility.exitMessage,"tabindex": tabIndex++ }).html(this.options.closeButtonContent);
                 closeButton.bind("click keypress",$.proxy(this.closeCalendar,this));
             }
             var firstCal;
@@ -201,9 +203,6 @@
                     calendars.css( $.proxy( this.calculatePosition, this, $(this.element) )() );
                 }
             }
-            this.container.attr('tabindex', '0');
-            this.container.focus();
-            
         },
 
         calculatePosition: function(element) {
@@ -229,13 +228,13 @@
                 var calendarHeader = $('<div>', { "class": "calendar-header" });
                     var calendarHeaderLeftArrow = $('<a>', { "class": "calendar-arrow left","aria-label" : title +" "+this.options.lexicon.accessibility.prevMonth });
                     if(calendarClasses.indexOf('min-month'))
-                        calendarHeaderLeftArrow.attr('tabIndex', tabIndex++);
+                        calendarHeaderLeftArrow.attr('tabindex', tabIndex++);
                     var calendarHeaderTitle = $('<div>', { "class": "calendar-title" });
                         var calendarHeaderTitleCaption = $('<div>', { "class": "calendar-caption" }).html(title);
                         var calendarHeaderTitleDate = $('<div>', { "class": "calendar-date" }).html(this.options.lexicon.longMonths[date.getMonth()] + " " + date.getFullYear());
                     var calendarHeaderRightArrow = $('<a>', { "class": "calendar-arrow right","aria-label" : title +" "+this.options.lexicon.accessibility.nextMonth });
                     if(calendarClasses.indexOf('max-month'))
-                        calendarHeaderRightArrow.attr('tabIndex', tabIndex++);
+                        calendarHeaderRightArrow.attr('tabindex', tabIndex++);
             	var calendarMain = $('<div>', { "class": "caldendar-main" });
             		var calendarDays = $('<div>', { "class": "calendar-days calendar-table"});
             		var calendarDates = $('<div>', { "class": "calendar-dates calendar-table"});
@@ -299,12 +298,19 @@
                 ){
                     classes += " selected";
                 }
+                if(
+                    +thisDate.getDate() == +date.getDate() &&
+                    +thisDate.getMonth() == +date.getMonth() &&
+                    +thisDate.getFullYear() == +date.getFullYear()
+                ){
+                    classes += " highlighted";
+                }
                 if(thisDate.getTime() == today.getTime())
                     classes += " today";
                 var day = $('<a>', { "class": classes }).html(i);
             	if( (classes.indexOf('disabled') == -1) ){
                     day.bind( "click keypress", { selectedDate: selectedDate, date: date, day: i, id: id  }, $.proxy(this.dayClickEvent,this) );
-                    day.attr('tabIndex', tabIndex++);
+                    day.attr('tabindex', tabIndex++);
                     var ariaMessage = this.options.lexicon.longDays[thisDate.getDay()] +", "+ i +", "+this.options.lexicon.longMonths[thisDate.getMonth()]+", "+thisDate.getFullYear();
                     if(title != '')
                         ariaMessage = title +", " + ariaMessage;
@@ -337,35 +343,41 @@
         dayClickEvent: function(event){
             if (event.type != "keypress" || event.keyCode == 13 || event.keyCode == 37 || event.keyCode == 38 || event.keyCode == 39 || event.keyCode == 40){                              
                 event.data.date.setDate(event.data.day);
-                event.data.selectedDate.setDate(event.data.date.getDate());
-                event.data.selectedDate.setMonth(event.data.date.getMonth());
-                event.data.selectedDate.setFullYear(event.data.date.getFullYear());
                 if(event.type == "keypress"){
                     switch(event.keyCode){
                         case 37: //left
-                        event.data.date.selectedDate(event.data.selectedDate.getDate() - 1);
+                        event.data.date.setDate(event.data.date.getDate() - 1);
                         break;
                         case 38: //up
-                        event.data.date.selectedDate(event.data.selectedDate.getDate() - 7);    
+                        event.data.date.setDate(event.data.date.getDate() - 7);    
                         break;
                         case 39: //right
-                        event.data.date.selectedDate(event.data.selectedDate.getDate() + 1);
+                        event.data.date.setDate(event.data.date.getDate() + 1);
                         break;
                         case 40: //down
-                        event.data.date.selectedDate(event.data.selectedDate.getDate() + 7);    
+                        event.data.date.setDate(event.data.date.getDate() + 7);    
+                        break;
+                        default:
+
                         break;
                     }
                 }
-                this.dateUpdate();
-                if(this.options.closeOnDateSelect)
-                    if(this.options.calendarMode == "range" && event.data.id != this.options.endDateId)
+                if(event.type != "keypress" || event.keyCode == 13){
+                    event.data.selectedDate.setDate(event.data.date.getDate());
+                    event.data.selectedDate.setMonth(event.data.date.getMonth());
+                    event.data.selectedDate.setFullYear(event.data.date.getFullYear());
+                    this.dateUpdate();
+                    if(this.options.closeOnDateSelect){
+                        if(this.options.calendarMode == "range" && event.data.id != this.options.endDateId)
+                            this.drawCalendars();
+                        else
+                            this.closeCalendar(event);
+                    }else{
                         this.drawCalendars();
-                    else
-                        this.closeCalendar(event);
-                else{
-                    this.drawCalendars();
+                    }
+                    this.container.find('.calendar-cell.active.selected').focus();   
                 }
-                this.container.find('.calendar-cell.active.selected').focus();                
+                this.drawCalendars();          
             }
         },
 
