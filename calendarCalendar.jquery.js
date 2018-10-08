@@ -387,7 +387,7 @@
                 var el = event.target;
                 var parentId = $(el).parents('.calendar').attr('id');
                 var classes = "";
-                el.classList.toString().split(' ').forEach(function(e){
+                el.attr('class').split(/\s+/).forEach(function(e){
                     classes += "."+e;
                 });
                 event.data.date.setMonth(event.data.month);
